@@ -1,0 +1,236 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EstadoEmpresa {
+  activa
+  suspendida
+  cancelada
+}
+
+enum RolUsuario {
+  super_admin
+  admin_empresa
+  rrhh
+  empleado
+}
+
+enum EstadoUsuario {
+  activo
+  inactivo
+}
+
+enum EstadoSuscripcion {
+  prueba
+  activa
+  vencida
+  suspendida
+  cancelada
+}
+
+enum EstadoFactura {
+  pendiente
+  pagada
+  vencida
+  anulada
+}
+
+enum EstadoPago {
+  pendiente
+  aprobado
+  rechazado
+  reversado
+}
+
+enum TipoMarcacion {
+  entrada
+  salida
+}
+
+enum EstadoMarcacion {
+  aceptada
+  aceptada_con_novedad
+  rechazada
+  pendiente_revision
+}
+
+model Empresa {
+  id          String        @id @default(uuid())
+  nombre      String
+  ruc         String?
+  telefono    String?
+  direccion   String?
+  estado      EstadoEmpresa @default(activa)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  usuarios       Usuario[]
+  sucursales     Sucursal[]
+  horarios       Horario[]
+  suscripciones  Suscripcion[]
+  facturas       Factura[]
+  pagos          Pago[]
+  marcaciones    Marcacion[]
+  auditorias     Auditoria[]
+}
+
+model Usuario {
+  id                 String        @id @default(uuid())
+  empresaId          String?
+  sucursalHabitualId String?
+  nombres            String
+  apellidos          String?
+  cedula             String?
+  correo             String        @unique
+  telefono           String?
+  cargo              String?
+  passwordHash       String
+  rol                RolUsuario
+  estado             EstadoUsuario @default(activo)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  empresa          Empresa?   @relation(fields: [empresaId], references: [id])
+  sucursalHabitual Sucursal?  @relation("SucursalHabitual", fields: [sucursalHabitualId], references: [id])
+  marcaciones      Marcacion[]
+  auditorias       Auditoria[]
+}
+
+model Plan {
+  id                     String   @id @default(uuid())
+  nombre                 String
+  precioMensual          Decimal  @default(0)
+  limiteEmpleados        Int
+  limiteSucursales       Int
+  incluyeReportes        Boolean  @default(true)
+  incluyeExportacionExcel Boolean @default(true)
+  estado                 String   @default("activo")
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  suscripciones Suscripcion[]
+}
+
+model Suscripcion {
+  id                  String             @id @default(uuid())
+  empresaId           String
+  planId              String
+  estado              EstadoSuscripcion  @default(activa)
+  fechaInicio         DateTime
+  fechaFin            DateTime?
+  renovacionAutomatica Boolean            @default(false)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  empresa  Empresa @relation(fields: [empresaId], references: [id])
+  plan     Plan    @relation(fields: [planId], references: [id])
+  facturas Factura[]
+}
+
+model Factura {
+  id             String        @id @default(uuid())
+  empresaId      String
+  suscripcionId  String?
+  numeroFactura  String?
+  subtotal       Decimal       @default(0)
+  impuestos      Decimal       @default(0)
+  total          Decimal       @default(0)
+  estado         EstadoFactura @default(pendiente)
+  fechaEmision   DateTime      @default(now())
+  fechaVencimiento DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  empresa      Empresa       @relation(fields: [empresaId], references: [id])
+  suscripcion  Suscripcion?  @relation(fields: [suscripcionId], references: [id])
+  pagos        Pago[]
+}
+
+model Pago {
+  id             String     @id @default(uuid())
+  empresaId      String
+  facturaId      String?
+  metodoPago     String
+  referenciaPago String?
+  valor          Decimal
+  estado         EstadoPago @default(pendiente)
+  fechaPago      DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  empresa Empresa  @relation(fields: [empresaId], references: [id])
+  factura Factura? @relation(fields: [facturaId], references: [id])
+}
+
+model Sucursal {
+  id          String   @id @default(uuid())
+  empresaId   String
+  nombre      String
+  direccion   String?
+  latitud     Decimal
+  longitud    Decimal
+  radioMetros Int      @default(50)
+  qrToken     String   @unique
+  estado      String   @default("activa")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  empresa                  Empresa      @relation(fields: [empresaId], references: [id])
+  empleadosHabituales      Usuario[]     @relation("SucursalHabitual")
+  marcaciones              Marcacion[]
+}
+
+model Horario {
+  id                 String   @id @default(uuid())
+  empresaId          String
+  nombre             String
+  horaEntrada        String
+  horaSalida         String
+  toleranciaMinutos  Int      @default(10)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  empresa Empresa @relation(fields: [empresaId], references: [id])
+}
+
+model Marcacion {
+  id              String           @id @default(uuid())
+  empresaId       String
+  usuarioId       String
+  sucursalId      String
+  tipo            TipoMarcacion
+  fechaHora       DateTime         @default(now())
+  latitud         Decimal
+  longitud        Decimal
+  distanciaMetros Decimal
+  estado          EstadoMarcacion  @default(aceptada)
+  motivoNovedad   String?
+  observacion     String?
+  ip              String?
+  dispositivo     String?
+  createdAt       DateTime         @default(now())
+
+  empresa  Empresa  @relation(fields: [empresaId], references: [id])
+  usuario  Usuario  @relation(fields: [usuarioId], references: [id])
+  sucursal Sucursal @relation(fields: [sucursalId], references: [id])
+}
+
+model Auditoria {
+  id          String   @id @default(uuid())
+  empresaId   String?
+  usuarioId   String?
+  accion      String
+  modulo      String
+  detalle     String?
+  ip          String?
+  dispositivo String?
+  createdAt   DateTime @default(now())
+
+  empresa Empresa? @relation(fields: [empresaId], references: [id])
+  usuario Usuario? @relation(fields: [usuarioId], references: [id])
+}
