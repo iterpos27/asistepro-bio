@@ -18,6 +18,22 @@ function validateFacturaPayload(payload) {
   }
 }
 
+function validateFacturaUpdatePayload(payload) {
+  const errors = [];
+
+  if (payload.concepto !== undefined && !payload.concepto?.trim()) errors.push('concepto es requerido');
+  if (payload.total !== undefined && Number(payload.total) < 0) errors.push('total no puede ser negativo');
+  if (payload.subtotal !== undefined && Number(payload.subtotal) < 0) errors.push('subtotal no puede ser negativo');
+  if (payload.impuesto !== undefined && Number(payload.impuesto) < 0) errors.push('impuesto no puede ser negativo');
+  if (payload.estado !== undefined && !FACTURA_ESTADOS.includes(payload.estado)) errors.push('estado invalido');
+
+  if (errors.length) {
+    const error = new Error(errors.join(', '));
+    error.statusCode = 400;
+    throw error;
+  }
+}
+
 function validatePagoPayload(payload) {
   const errors = [];
 
@@ -63,7 +79,7 @@ async function listFacturas({ empresaId, estado, limit = 20, offset = 0 }) {
       SELECT
         f.*,
         e.nombre AS empresa_nombre,
-        COALESCE(SUM(p.monto), 0)::numeric(10, 2) AS total_pagado,
+        COALESCE(SUM(p.monto) FILTER (WHERE p.estado = 'registrado'), 0)::numeric(10, 2) AS total_pagado,
         COUNT(*) OVER() AS total_registros
       FROM facturas f
       INNER JOIN empresas e ON e.id = f.empresa_id
@@ -91,7 +107,7 @@ async function findFacturaById(id) {
       SELECT
         f.*,
         e.nombre AS empresa_nombre,
-        COALESCE(SUM(p.monto), 0)::numeric(10, 2) AS total_pagado
+        COALESCE(SUM(p.monto) FILTER (WHERE p.estado = 'registrado'), 0)::numeric(10, 2) AS total_pagado
       FROM facturas f
       INNER JOIN empresas e ON e.id = f.empresa_id
       LEFT JOIN pagos p ON p.factura_id = f.id
@@ -103,6 +119,126 @@ async function findFacturaById(id) {
   );
 
   return result.rows[0] || null;
+}
+
+async function recalculateFacturaEstado(client, facturaId) {
+  const result = await client.query(
+    `
+      SELECT
+        f.total,
+        f.estado,
+        COALESCE(SUM(p.monto) FILTER (WHERE p.estado = 'registrado'), 0)::numeric AS total_pagado
+      FROM facturas f
+      LEFT JOIN pagos p ON p.factura_id = f.id
+      WHERE f.id = $1
+      GROUP BY f.id
+      LIMIT 1
+    `,
+    [facturaId],
+  );
+
+  const factura = result.rows[0];
+
+  if (!factura || factura.estado === 'anulada') return;
+
+  const nextEstado = Number(factura.total_pagado) >= Number(factura.total) ? 'pagada' : 'pendiente';
+
+  await client.query(
+    `
+      UPDATE facturas
+      SET estado = $2,
+          actualizado_en = NOW()
+      WHERE id = $1
+        AND estado <> 'anulada'
+    `,
+    [facturaId, nextEstado],
+  );
+}
+
+async function updateFactura(id, payload) {
+  validateFacturaUpdatePayload(payload);
+
+  const current = await findFacturaById(id);
+
+  if (!current) return null;
+
+  if (current.estado === 'anulada') {
+    const error = new Error('No se puede modificar una factura anulada');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const next = {
+    suscripcion_id:
+      payload.suscripcion_id !== undefined ? payload.suscripcion_id || null : current.suscripcion_id,
+    concepto: payload.concepto !== undefined ? payload.concepto.trim() : current.concepto,
+    subtotal: payload.subtotal !== undefined ? Number(payload.subtotal) : Number(current.subtotal),
+    impuesto: payload.impuesto !== undefined ? Number(payload.impuesto) : Number(current.impuesto),
+    total: payload.total !== undefined ? Number(payload.total) : Number(current.total),
+    estado: payload.estado !== undefined ? payload.estado : current.estado,
+    fecha_emision: payload.fecha_emision !== undefined ? payload.fecha_emision : current.fecha_emision,
+    fecha_vencimiento:
+      payload.fecha_vencimiento !== undefined ? payload.fecha_vencimiento || null : current.fecha_vencimiento,
+  };
+
+  await pool.query(
+    `
+      UPDATE facturas
+      SET suscripcion_id = $2,
+          concepto = $3,
+          subtotal = $4,
+          impuesto = $5,
+          total = $6,
+          estado = $7,
+          fecha_emision = $8,
+          fecha_vencimiento = $9,
+          actualizado_en = NOW()
+      WHERE id = $1
+    `,
+    [
+      id,
+      next.suscripcion_id,
+      next.concepto,
+      next.subtotal,
+      next.impuesto,
+      next.total,
+      next.estado,
+      next.fecha_emision,
+      next.fecha_vencimiento,
+    ],
+  );
+
+  return findFacturaById(id);
+}
+
+async function anulacionFactura(id, motivoAnulacion) {
+  const factura = await findFacturaById(id);
+
+  if (!factura) return null;
+
+  await pool.query(
+    `
+      UPDATE facturas
+      SET estado = 'anulada',
+          actualizado_en = NOW()
+      WHERE id = $1
+    `,
+    [id],
+  );
+
+  await pool.query(
+    `
+      UPDATE pagos
+      SET estado = 'anulado',
+          anulado_en = COALESCE(anulado_en, NOW()),
+          motivo_anulacion = COALESCE(motivo_anulacion, $2)
+      WHERE factura_id = $1
+        AND estado = 'registrado'
+    `,
+    [id, motivoAnulacion || null],
+  );
+
+  return findFacturaById(id);
 }
 
 async function createFactura(payload) {
@@ -207,7 +343,12 @@ async function registerManualPayment(payload) {
     );
 
     const totalPagadoResult = await client.query(
-      'SELECT COALESCE(SUM(monto), 0)::numeric AS total_pagado FROM pagos WHERE factura_id = $1',
+      `
+        SELECT COALESCE(SUM(monto), 0)::numeric AS total_pagado
+        FROM pagos
+        WHERE factura_id = $1
+          AND estado = 'registrado'
+      `,
       [factura.id],
     );
 
@@ -278,10 +419,64 @@ async function listPagos({ facturaId, empresaId, limit = 20, offset = 0 }) {
   };
 }
 
+async function findPagoById(id) {
+  const result = await pool.query(
+    `
+      SELECT p.*, f.numero AS factura_numero, f.empresa_id AS factura_empresa_id
+      FROM pagos p
+      INNER JOIN facturas f ON f.id = p.factura_id
+      WHERE p.id = $1
+      LIMIT 1
+    `,
+    [id],
+  );
+
+  return result.rows[0] || null;
+}
+
+async function anulacionPago(id, motivoAnulacion) {
+  const pago = await findPagoById(id);
+
+  if (!pago) return null;
+
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+    await client.query(
+      `
+        UPDATE pagos
+        SET estado = 'anulado',
+            anulado_en = NOW(),
+            motivo_anulacion = $2
+        WHERE id = $1
+      `,
+      [id, motivoAnulacion || null],
+    );
+
+    await recalculateFacturaEstado(client, pago.factura_id);
+    await client.query('COMMIT');
+
+    return {
+      pago: await findPagoById(id),
+      factura: await findFacturaById(pago.factura_id),
+    };
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   listFacturas,
   findFacturaById,
   createFactura,
+  updateFactura,
+  anulacionFactura,
   registerManualPayment,
   listPagos,
+  findPagoById,
+  anulacionPago,
 };

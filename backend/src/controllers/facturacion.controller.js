@@ -63,6 +63,44 @@ async function createFactura(req, res, next) {
   }
 }
 
+async function updateFactura(req, res, next) {
+  try {
+    const current = await facturacionService.findFacturaById(req.params.id);
+
+    if (!current) {
+      return res.status(404).json({ ok: false, message: 'Factura no encontrada' });
+    }
+
+    if (!canAccessEmpresa(req, current.empresa_id)) {
+      return res.status(403).json({ ok: false, message: 'No puede modificar esta factura' });
+    }
+
+    const factura = await facturacionService.updateFactura(req.params.id, req.body);
+    return res.json({ ok: true, data: factura });
+  } catch (error) {
+    if (error.code === '23505') {
+      error.statusCode = 409;
+      error.message = 'Ya existe una factura con ese numero';
+    }
+
+    return next(error);
+  }
+}
+
+async function anularFactura(req, res, next) {
+  try {
+    const factura = await facturacionService.anulacionFactura(req.params.id, req.body?.motivo_anulacion);
+
+    if (!factura) {
+      return res.status(404).json({ ok: false, message: 'Factura no encontrada' });
+    }
+
+    return res.json({ ok: true, data: factura });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 async function registerManualPayment(req, res, next) {
   try {
     const result = await facturacionService.registerManualPayment(req.body);
@@ -93,10 +131,51 @@ async function listPagos(req, res, next) {
   }
 }
 
+async function getPago(req, res, next) {
+  try {
+    const pago = await facturacionService.findPagoById(req.params.id);
+
+    if (!pago) {
+      return res.status(404).json({ ok: false, message: 'Pago no encontrado' });
+    }
+
+    if (!canAccessEmpresa(req, pago.empresa_id)) {
+      return res.status(403).json({ ok: false, message: 'No puede acceder a este pago' });
+    }
+
+    return res.json({ ok: true, data: pago });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function anularPago(req, res, next) {
+  try {
+    const pago = await facturacionService.findPagoById(req.params.id);
+
+    if (!pago) {
+      return res.status(404).json({ ok: false, message: 'Pago no encontrado' });
+    }
+
+    if (!canAccessEmpresa(req, pago.empresa_id)) {
+      return res.status(403).json({ ok: false, message: 'No puede anular este pago' });
+    }
+
+    const result = await facturacionService.anulacionPago(req.params.id, req.body?.motivo_anulacion);
+    return res.json({ ok: true, data: result });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   listFacturas,
   getFactura,
   createFactura,
+  updateFactura,
+  anularFactura,
   registerManualPayment,
   listPagos,
+  getPago,
+  anularPago,
 };
