@@ -11,6 +11,7 @@ const migrations = [
   '004_auth.sql',
   '005_multi_tenant.sql',
   '006_billing.sql',
+  '007_sucursales.sql',
 ];
 
 async function runMigrations() {
