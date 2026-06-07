@@ -13,6 +13,7 @@ const migrations = [
   '006_billing.sql',
   '007_sucursales.sql',
   '008_empleados.sql',
+  '009_horarios.sql',
 ];
 
 async function runMigrations() {
