@@ -10,7 +10,7 @@ export default function DashboardLayout({ user, children }) {
 
   function logout() {
     clearSession();
-    navigate('/');
+    navigate('/login');
   }
 
   return (

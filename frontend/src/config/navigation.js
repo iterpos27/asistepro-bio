@@ -11,8 +11,9 @@ import {
 } from 'lucide-react';
 
 export const navItems = [
-  { title: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+  { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { title: 'Empresas', href: '/empresas', icon: Building2 },
+  { title: 'Planes', href: '/planes', icon: CreditCard },
   { title: 'Sucursales', href: '/sucursales', icon: MapPin },
   { title: 'Empleados', href: '/empleados', icon: Users },
   { title: 'Horarios', href: '/horarios', icon: CalendarClock },

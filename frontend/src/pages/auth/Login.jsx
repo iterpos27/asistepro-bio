@@ -44,7 +44,7 @@ export default function Login({ onLogin }) {
       user,
     });
     onLogin(user);
-    navigate('/admin');
+    navigate('/dashboard');
   }
 
   return (
