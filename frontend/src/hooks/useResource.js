@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 
-export default function useResource(path, fallback, deps = []) {
+export default function useResource(path, fallback, deps = [], options = {}) {
+  const enabled = options.enabled ?? true;
   const [data, setData] = useState(fallback);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!enabled) {
+      setData(fallback);
+      setLoading(false);
+      return undefined;
+    }
+
     let mounted = true;
     setLoading(true);
     api
@@ -21,7 +28,7 @@ export default function useResource(path, fallback, deps = []) {
     return () => {
       mounted = false;
     };
-  }, deps);
+  }, [enabled, ...deps]);
 
   return { data, loading };
 }

@@ -8,13 +8,7 @@ import PlanesList from '../pages/planes/PlanesList';
 import Reportes from '../pages/reportes/Reportes';
 import Settings from '../pages/settings/Settings';
 import SucursalesList from '../pages/sucursales/SucursalesList';
-
-export const routeRoles = {
-  superAdmin: ['SUPER_ADMIN'],
-  adminEmpresa: ['SUPER_ADMIN', 'ADMIN_EMPRESA'],
-  rrhh: ['SUPER_ADMIN', 'ADMIN_EMPRESA', 'RRHH'],
-  empleado: ['SUPER_ADMIN', 'ADMIN_EMPRESA', 'RRHH', 'EMPLEADO'],
-};
+import { routeRoles } from '../utils/roles';
 
 export const privateRoutes = [
   {

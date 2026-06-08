@@ -16,7 +16,7 @@ export default function DashboardLayout({ user, children }) {
 
   return (
     <div className="app-shell">
-      <Sidebar open={open} onNavigate={() => setOpen(false)} />
+      <Sidebar open={open} onNavigate={() => setOpen(false)} user={user} />
       <div className="content-area">
         <Topbar user={user} onOpenMenu={() => setOpen(true)} onLogout={logout} />
         <main className="page">{children}</main>
