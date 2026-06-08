@@ -669,6 +669,47 @@ td {
   justify-content: flex-end;
 }
 
+.qr-box {
+  display: grid;
+  gap: 14px;
+}
+
+.qr-token {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: #eff6ff;
+}
+
+.qr-token strong {
+  color: #1e3a8a;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.qr-token span,
+.qr-box pre {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.qr-token span {
+  color: #172033;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+}
+
+.qr-box pre {
+  margin: 0;
+  padding: 14px;
+  border-radius: 8px;
+  color: #dbeafe;
+  background: #0f172a;
+  font-size: 13px;
+}
+
 .settings-grid label {
   display: grid;
   gap: 8px;
