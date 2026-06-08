@@ -646,6 +646,18 @@ td {
   grid-column: 1 / -1;
 }
 
+.checkbox-field {
+  align-content: center;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-height: 42px;
+}
+
+.checkbox-field input {
+  width: 18px;
+  min-height: 18px;
+  margin: 0;
+}
+
 .form-actions,
 .row-actions {
   display: flex;

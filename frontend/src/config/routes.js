@@ -7,6 +7,7 @@ import HistorialMarcaciones from '../pages/marcaciones/HistorialMarcaciones';
 import PlanesList from '../pages/planes/PlanesList';
 import Reportes from '../pages/reportes/Reportes';
 import Settings from '../pages/settings/Settings';
+import SuscripcionesList from '../pages/suscripciones/SuscripcionesList';
 import SucursalesList from '../pages/sucursales/SucursalesList';
 import { routeRoles } from '../utils/roles';
 
@@ -29,6 +30,11 @@ export const privateRoutes = [
   {
     path: '/planes',
     element: PlanesList,
+    roles: routeRoles.superAdmin,
+  },
+  {
+    path: '/suscripciones',
+    element: SuscripcionesList,
     roles: routeRoles.superAdmin,
   },
   {
