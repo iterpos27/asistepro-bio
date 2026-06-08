@@ -770,6 +770,45 @@ td {
   min-height: 14px;
 }
 
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon svg {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  color: #94a3b8;
+  transform: translateY(-50%);
+}
+
+.input-with-icon input {
+  padding-left: 40px;
+}
+
+.gps-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  color: #1e3a8a;
+  background: #eff6ff;
+}
+
+.gps-status strong,
+.gps-status span {
+  display: block;
+}
+
+.gps-status span {
+  margin-top: 4px;
+  color: #475569;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
 .settings-grid label {
   display: grid;
   gap: 8px;

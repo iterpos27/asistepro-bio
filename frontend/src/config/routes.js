@@ -4,6 +4,7 @@ import EmpresasList from '../pages/empresas/EmpresasList';
 import Facturas from '../pages/facturacion/Facturas';
 import HorariosList from '../pages/horarios/HorariosList';
 import HistorialMarcaciones from '../pages/marcaciones/HistorialMarcaciones';
+import MarcarAsistencia from '../pages/marcaciones/MarcarAsistencia';
 import PlanesList from '../pages/planes/PlanesList';
 import Reportes from '../pages/reportes/Reportes';
 import Settings from '../pages/settings/Settings';
@@ -54,7 +55,7 @@ export const privateRoutes = [
   },
   {
     path: '/marcaciones',
-    element: HistorialMarcaciones,
+    element: MarcarAsistencia,
     roles: routeRoles.empleado,
   },
   {
