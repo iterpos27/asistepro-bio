@@ -15,7 +15,6 @@ import PageHeader from '../../components/common/PageHeader';
 import PanelTitle from '../../components/common/PanelTitle';
 import DataPanel from '../../components/tables/DataPanel';
 import { useAuthContext } from '../../context/AuthContext';
-import { branchActivity, weeklyAttendance } from '../../data/fallback';
 import useResource from '../../hooks/useResource';
 import { ROLES, getRoleLabel } from '../../utils/roles';
 
@@ -31,6 +30,29 @@ function getRows(data) {
 
 function money(value) {
   return `$${Number(value || 0).toFixed(2)}`;
+}
+
+function dayLabel(value) {
+  return value ? String(value).slice(5, 10) : '-';
+}
+
+function buildMonthlyAttendance(rows) {
+  return rows.map((row) => ({
+    day: dayLabel(row.fecha),
+    presentes: Number(row.empleados_presentes || 0),
+    novedades: Number(row.novedades || 0),
+    rechazadas: Number(row.rechazadas || 0),
+  }));
+}
+
+function buildBranchActivity(rows) {
+  const grouped = rows.reduce((summary, row) => {
+    const name = row.sucursal_nombre || 'Sin sucursal';
+    summary[name] = (summary[name] || 0) + 1;
+    return summary;
+  }, {});
+
+  return Object.entries(grouped).map(([name, value]) => ({ name, value }));
 }
 
 export default function Dashboard() {
@@ -59,6 +81,8 @@ export default function Dashboard() {
 
   const invoiceTotal = getRows(facturas.data).reduce((total, item) => total + Number(item.total || 0), 0);
   const pagosTotal = getRows(pagos.data).reduce((total, item) => total + Number(item.monto || 0), 0);
+  const monthlyAttendance = buildMonthlyAttendance(mensual.data.items || []);
+  const branchActivity = buildBranchActivity(getRows(marcaciones.data));
 
   return (
     <>
@@ -96,14 +120,14 @@ export default function Dashboard() {
             <div className="panel wide">
               <PanelTitle title="Asistencia mensual" subtitle="Resumen operativo por empresa" />
               <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={weeklyAttendance}>
+                <BarChart data={monthlyAttendance}>
                   <CartesianGrid vertical={false} stroke="#e5e7eb" strokeDasharray="3 3" />
                   <XAxis dataKey="day" tickLine={false} axisLine={false} />
                   <YAxis tickLine={false} axisLine={false} />
                   <Tooltip />
                   <Bar dataKey="presentes" fill="#4f46e5" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="tarde" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="ausentes" fill="#64748b" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="novedades" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="rechazadas" fill="#64748b" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
