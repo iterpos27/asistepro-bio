@@ -1,5 +1,13 @@
 import axios from 'axios';
-import { ACCESS_TOKEN_KEY, EMPRESA_ID_KEY, REFRESH_TOKEN_KEY, USER_KEY, getStoredUser } from '../utils/auth';
+import {
+  ACCESS_TOKEN_KEY,
+  EMPRESA_ID_KEY,
+  REFRESH_TOKEN_KEY,
+  USER_KEY,
+  getAccessToken,
+  getRefreshToken,
+  getStoredUser,
+} from '../utils/auth';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
@@ -7,8 +15,12 @@ export const api = axios.create({
   baseURL: API_URL,
 });
 
+const authApi = axios.create({
+  baseURL: API_URL,
+});
+
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+  const token = getAccessToken();
   const empresaId = localStorage.getItem(EMPRESA_ID_KEY);
 
   if (token) {
@@ -21,6 +33,44 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    const status = error.response?.status;
+    const refreshToken = getRefreshToken();
+
+    if (status === 401 && refreshToken && !originalRequest?._retry && !originalRequest?.url?.includes('/auth/refresh')) {
+      originalRequest._retry = true;
+
+      try {
+        const response = await authApi.post('/auth/refresh', { refreshToken });
+        const { user, tokens } = response.data.data;
+
+        setSession({
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+          user,
+        });
+
+        originalRequest.headers.Authorization = `Bearer ${tokens.accessToken}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        clearSession();
+        window.location.assign('/login');
+        return Promise.reject(refreshError);
+      }
+    }
+
+    if (status === 401) {
+      clearSession();
+      window.location.assign('/login');
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 export function setSession({ accessToken, refreshToken, user }) {
   localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
