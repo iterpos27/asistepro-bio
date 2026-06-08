@@ -737,6 +737,39 @@ td {
   overflow-wrap: anywhere;
 }
 
+.field-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.day-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.day-picker label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid #d9e2ef;
+  border-radius: 8px;
+  color: #334155;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.day-picker input {
+  width: 14px;
+  min-height: 14px;
+}
+
 .settings-grid label {
   display: grid;
   gap: 8px;
