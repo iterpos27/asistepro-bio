@@ -219,6 +219,16 @@ button {
   font-size: 13px;
 }
 
+.alert-success {
+  padding: 12px 14px;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  color: #047857;
+  background: #dcfce7;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .primary-button,
 .outline-button,
 .icon-button {
@@ -248,6 +258,13 @@ button {
   box-shadow: 0 22px 38px rgba(37, 99, 235, 0.28);
 }
 
+.primary-button.compact {
+  width: auto;
+  min-height: 38px;
+  padding: 0 16px;
+  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.18);
+}
+
 .outline-button,
 .icon-button {
   border: 1px solid #dbe5f1;
@@ -264,6 +281,10 @@ button {
 .icon-button {
   width: 38px;
   height: 38px;
+}
+
+.icon-button.danger {
+  color: #b91c1c;
 }
 
 .outline-button:hover,
@@ -565,6 +586,77 @@ td {
   gap: 16px;
 }
 
+.toolbar-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(180px, 220px) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.toolbar-grid select,
+.module-form select,
+.module-form input {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #d9e2ef;
+  border-radius: 8px;
+  color: #0f172a;
+  background: #ffffff;
+  outline: none;
+}
+
+.toolbar-grid select,
+.module-form select {
+  padding: 0 12px;
+}
+
+.inline-search {
+  display: block;
+  max-width: none;
+}
+
+.module-form {
+  display: grid;
+  gap: 18px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.form-grid label {
+  display: grid;
+  gap: 8px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.form-grid input {
+  padding: 0 12px;
+}
+
+.form-grid small {
+  color: #b91c1c;
+}
+
+.wide-field {
+  grid-column: 1 / -1;
+}
+
+.form-actions,
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-actions {
+  justify-content: flex-end;
+}
+
 .settings-grid label {
   display: grid;
   gap: 8px;
@@ -637,6 +729,10 @@ td {
     display: none;
   }
 
+  .inline-search {
+    display: block;
+  }
+
   .page {
     padding: 22px 16px;
   }
@@ -650,6 +746,10 @@ td {
   .header-actions {
     justify-content: flex-start;
   }
+
+  .toolbar-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 620px) {
@@ -658,7 +758,8 @@ td {
   }
 
   .metrics-grid,
-  .settings-grid {
+  .settings-grid,
+  .form-grid {
     grid-template-columns: 1fr;
   }
 

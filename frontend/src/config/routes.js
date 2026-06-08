@@ -24,7 +24,7 @@ export const privateRoutes = [
   {
     path: '/empresas',
     element: EmpresasList,
-    roles: routeRoles.adminEmpresa,
+    roles: routeRoles.superAdmin,
   },
   {
     path: '/planes',
