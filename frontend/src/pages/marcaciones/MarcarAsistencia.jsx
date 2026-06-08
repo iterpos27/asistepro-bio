@@ -24,6 +24,9 @@ export default function MarcarAsistencia() {
   const [tipo, setTipo] = useState('entrada');
   const [motivoNovedad, setMotivoNovedad] = useState('');
   const [detalleNovedad, setDetalleNovedad] = useState('');
+  const [pendingPayload, setPendingPayload] = useState(null);
+  const [showNovedadModal, setShowNovedadModal] = useState(false);
+  const [novedadError, setNovedadError] = useState('');
   const [ubicacion, setUbicacion] = useState(null);
   const [gpsPermission, setGpsPermission] = useState(null);
   const [scanning, setScanning] = useState(false);
@@ -97,6 +100,32 @@ export default function MarcarAsistencia() {
     }
   }
 
+  async function registerMarcacion(payload, { allowNovedadPrompt = true } = {}) {
+    setSubmitting(true);
+
+    try {
+      const response = await marcacionService.registrarMarcacion(payload);
+      setResult(response);
+      setPendingPayload(null);
+      setShowNovedadModal(false);
+      setMotivoNovedad('');
+      setDetalleNovedad('');
+    } catch (requestError) {
+      const message = requestError.response?.data?.message || 'No se pudo registrar la marcacion';
+
+      if (allowNovedadPrompt && message.includes('motivo_novedad')) {
+        setPendingPayload(payload);
+        setShowNovedadModal(true);
+        setNovedadError('');
+        setError('');
+      } else {
+        setError(message);
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   async function submit(event) {
     event.preventDefault();
     setError('');
@@ -112,23 +141,43 @@ export default function MarcarAsistencia() {
       return;
     }
 
-    setSubmitting(true);
+    await registerMarcacion({
+      qr_token: qrToken.trim(),
+      tipo,
+      latitud: ubicacion.latitud,
+      longitud: ubicacion.longitud,
+    });
+  }
 
-    try {
-      const response = await marcacionService.registrarMarcacion({
-        qr_token: qrToken.trim(),
-        tipo,
-        latitud: ubicacion.latitud,
-        longitud: ubicacion.longitud,
-        motivo_novedad: motivoNovedad || undefined,
-        detalle_novedad: detalleNovedad || undefined,
-      });
-      setResult(response);
-    } catch (requestError) {
-      setError(requestError.response?.data?.message || 'No se pudo registrar la marcacion');
-    } finally {
-      setSubmitting(false);
+  async function confirmNovedad() {
+    setNovedadError('');
+
+    if (!motivoNovedad) {
+      setNovedadError('Selecciona el motivo de la novedad');
+      return;
     }
+
+    if (!pendingPayload) {
+      setNovedadError('No hay una marcacion pendiente para confirmar');
+      return;
+    }
+
+    await registerMarcacion(
+      {
+        ...pendingPayload,
+        motivo_novedad: motivoNovedad,
+        detalle_novedad: detalleNovedad || undefined,
+      },
+      { allowNovedadPrompt: false },
+    );
+  }
+
+  function closeNovedadModal() {
+    setShowNovedadModal(false);
+    setPendingPayload(null);
+    setMotivoNovedad('');
+    setDetalleNovedad('');
+    setNovedadError('');
   }
 
   return (
@@ -175,21 +224,6 @@ export default function MarcarAsistencia() {
                 <option value="salida">Salida</option>
               </select>
             </label>
-            <label>
-              Motivo novedad
-              <select value={motivoNovedad} onChange={(event) => setMotivoNovedad(event.target.value)}>
-                <option value="">Sin novedad</option>
-                {motivos.map((motivo) => (
-                  <option key={motivo} value={motivo}>
-                    {motivo}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="wide-field">
-              Detalle novedad
-              <input value={detalleNovedad} onChange={(event) => setDetalleNovedad(event.target.value)} placeholder="Opcional" />
-            </label>
           </div>
 
           <div className="gps-status">
@@ -216,6 +250,47 @@ export default function MarcarAsistencia() {
           </div>
         </form>
       </div>
+
+      {showNovedadModal ? (
+        <div className="modal-backdrop" role="presentation">
+          <section className="modal-panel" role="dialog" aria-modal="true" aria-label="Sucursal diferente">
+            <PanelTitle
+              title="Sucursal diferente"
+              subtitle="Estas marcando en una sucursal diferente. Selecciona el motivo."
+            />
+
+            {novedadError ? <div className="alert-error">{novedadError}</div> : null}
+
+            <div className="module-form">
+              <label>
+                Motivo novedad
+                <select value={motivoNovedad} onChange={(event) => setMotivoNovedad(event.target.value)}>
+                  <option value="">Selecciona un motivo</option>
+                  {motivos.map((motivo) => (
+                    <option key={motivo} value={motivo}>
+                      {motivo}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Detalle novedad
+                <input value={detalleNovedad} onChange={(event) => setDetalleNovedad(event.target.value)} placeholder="Opcional" />
+              </label>
+            </div>
+
+            <div className="form-actions">
+              <button className="outline-button" type="button" onClick={closeNovedadModal} disabled={submitting}>
+                Cancelar
+              </button>
+              <button className="primary-button compact" type="button" onClick={confirmNovedad} disabled={submitting}>
+                <Send size={16} />
+                {submitting ? 'Registrando...' : 'Confirmar novedad'}
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </>
   );
 }
