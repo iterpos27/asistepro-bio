@@ -144,9 +144,23 @@ function me(req, res) {
   });
 }
 
+async function changePassword(req, res, next) {
+  try {
+    await authService.changePassword(req.auth.usuario_id, req.body);
+
+    return res.json({
+      ok: true,
+      message: 'Contrasena actualizada correctamente',
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   login,
   refresh,
   logout,
   me,
+  changePassword,
 };

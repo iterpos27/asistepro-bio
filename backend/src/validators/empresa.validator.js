@@ -11,6 +11,28 @@ const empresaBody = z.object({
   estado: z.enum(['activa', 'suspendida', 'cancelada']).optional(),
 });
 
+const createEmpresaBody = empresaBody
+  .extend({
+    admin_nombre: z.string().trim().max(120).optional(),
+    admin_apellido: z.string().trim().max(120).optional(),
+    admin_email: z.email('admin_email invalido').optional(),
+    admin_telefono: z.string().trim().max(40).optional().nullable(),
+    admin_password: z.string().min(8, 'admin_password debe tener al menos 8 caracteres').optional(),
+    admin_confirm_password: z.string().min(8, 'confirmacion requerida').optional(),
+  })
+  .refine((payload) => !payload.admin_email || Boolean(payload.admin_password), {
+    message: 'admin_password es requerido',
+    path: ['admin_password'],
+  })
+  .refine((payload) => !payload.admin_password || Boolean(payload.admin_email), {
+    message: 'admin_email es requerido',
+    path: ['admin_email'],
+  })
+  .refine((payload) => !payload.admin_password || payload.admin_password === payload.admin_confirm_password, {
+    message: 'Las contrasenas no coinciden',
+    path: ['admin_confirm_password'],
+  });
+
 const listEmpresasSchema = z.object({
   body: emptyBody,
   query: paginationQuery.extend({
@@ -20,7 +42,7 @@ const listEmpresasSchema = z.object({
 });
 
 const createEmpresaSchema = z.object({
-  body: empresaBody,
+  body: createEmpresaBody,
   query: z.object({}).passthrough(),
   params: emptyParams,
 });

@@ -18,3 +18,8 @@ export async function refreshToken() {
   const response = await api.post('/auth/refresh', {});
   return response.data.data;
 }
+
+export async function changePassword(payload) {
+  const response = await api.put('/auth/password', payload);
+  return response.data;
+}
