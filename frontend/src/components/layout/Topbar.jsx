@@ -1,13 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronDown, LogOut, Menu, Settings } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { ChevronDown, CircleUserRound, LogOut, Menu, Settings } from 'lucide-react';
+import { navSections } from '../../config/navigation';
 import { ROLES, getRoleLabel } from '../../utils/roles';
 import EmpresaSelector from './EmpresaSelector';
 
 export default function Topbar({ user, onOpenMenu, onLogout }) {
+  const location = useLocation();
   const isSuperAdmin = user?.rol === ROLES.SUPER_ADMIN;
   const [accountOpen, setAccountOpen] = useState(false);
   const accountRef = useRef(null);
+  const activeItem = navSections
+    .flatMap((section) => section.items)
+    .find((item) => location.pathname === item.href || location.pathname.startsWith(`${item.href}/`));
   const displayName = user?.nombre ? `${user.nombre} ${user.apellido || ''}`.trim() : user?.email || 'Usuario';
   const initials = displayName
     .split(' ')
@@ -43,8 +48,9 @@ export default function Topbar({ user, onOpenMenu, onLogout }) {
       </button>
 
       <div className="topbar-title">
-        <strong>AsistePro</strong>
-        <p>{user?.empresa || 'Panel operativo'}</p>
+        <span className="topbar-kicker">AsistePro</span>
+        <strong>{activeItem?.title || 'Panel operativo'}</strong>
+        <p>{user?.empresa || user?.email || 'Sesion operativa'}</p>
       </div>
 
       <div className="topbar-actions">
@@ -84,8 +90,12 @@ export default function Topbar({ user, onOpenMenu, onLogout }) {
                 <strong>{getRoleLabel(user?.rol)}</strong>
               </div>
               <Link className="dropdown-action" to="/settings" onClick={() => setAccountOpen(false)} role="menuitem">
+                <CircleUserRound size={16} />
+                Perfil de usuario
+              </Link>
+              <Link className="dropdown-action" to="/settings" onClick={() => setAccountOpen(false)} role="menuitem">
                 <Settings size={16} />
-                Ver perfil y ajustes
+                Ajustes
               </Link>
               <button className="dropdown-action danger" type="button" onClick={onLogout} role="menuitem">
                 <LogOut size={16} />

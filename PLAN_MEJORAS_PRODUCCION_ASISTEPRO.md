@@ -165,11 +165,15 @@ Aplicado en codigo:
 - Baseline de migraciones corregido para no omitir migraciones incrementales.
 - Nueva migracion de limpieza e indices para tokens QR dinamicos.
 - Registro de primer uso de token QR dinamico.
+- Redisenio base del shell frontend: sidebar, topbar contextual, dropdown de perfil/salida y estilos compartidos de paneles/tablas/cards.
+- Validadores Zod agregados a empresas, empleados, horarios/asignaciones y facturacion/pagos.
+- Auditoria funcional enriquecida con metadata sanitizada de `params`, `query`, `body` y actor.
+- Suite `npm run test` agregada para aislamiento multi-tenant y auditoria segura.
 
 Pendiente:
 
-- Portar de forma completa el sistema visual aprobado.
-- Extender validadores Zod a todos los modulos.
-- Agregar Playwright y tests de permisos multi-tenant.
+- Portar componentes visuales finos pantalla por pantalla cuando la carpeta de referencia vuelva a su ubicacion versionada.
+- Extender validadores Zod a planes, suscripciones, reportes y endpoints auxiliares.
+- Agregar Playwright E2E con navegador real para login, CRUD, dropdown perfil, QR, pagos y responsive.
 - Implementar retencion/limpieza periodica fuera del flujo de emision QR.
 - Redisenar dashboard financiero y reportes escalables.

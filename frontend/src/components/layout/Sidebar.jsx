@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { ScanFace } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { getNavSectionsForRole } from '../../config/navigation';
 import { getRoleLabel } from '../../utils/roles';
 
@@ -11,11 +11,11 @@ export default function Sidebar({ open, onNavigate, user }) {
     <aside className={open ? 'sidebar open' : 'sidebar'}>
       <div className="sidebar-brand">
         <div className="brand-icon">
-          <ScanFace size={22} />
+          <ShieldCheck size={22} />
         </div>
         <div>
           <strong>AsistePro</strong>
-          <span>Control de asistencia</span>
+          <span>Operacion SaaS</span>
         </div>
       </div>
 

@@ -1,6 +1,41 @@
 const { pool } = require('../config/database');
 
 const AUDITED_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+const SENSITIVE_KEYS = new Set([
+  'accessToken',
+  'authorization',
+  'comprobante',
+  'comprobante_base64',
+  'password',
+  'password_acceso',
+  'password_hash',
+  'refreshToken',
+  'token',
+]);
+
+function sanitizeValue(value) {
+  if (Array.isArray(value)) {
+    return value.slice(0, 20).map(sanitizeValue);
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.entries(value).reduce((safe, [key, entry]) => {
+      if (SENSITIVE_KEYS.has(key) || key.toLowerCase().includes('password') || key.toLowerCase().includes('token')) {
+        safe[key] = '[redacted]';
+        return safe;
+      }
+
+      safe[key] = sanitizeValue(entry);
+      return safe;
+    }, {});
+  }
+
+  if (typeof value === 'string' && value.length > 240) {
+    return `${value.slice(0, 240)}...`;
+  }
+
+  return value;
+}
 
 function resolveEntity(req) {
   const parts = req.path.split('/').filter(Boolean);
@@ -54,6 +89,11 @@ function auditLogger(req, res, next) {
           JSON.stringify({
             params: req.params || {},
             query: req.query || {},
+            body: sanitizeValue(req.body || {}),
+            actor: {
+              rol: req.auth?.rol || null,
+              email: req.auth?.email || null,
+            },
           }),
         ],
       )
