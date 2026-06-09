@@ -2,7 +2,7 @@ import axios from 'axios';
 import {
   EMPRESA_ID_KEY,
   getAccessToken,
-  getRefreshToken,
+  getCsrfToken,
   getStoredEmpresaId,
   clearStoredSession,
   saveSession,
@@ -32,6 +32,12 @@ api.interceptors.request.use((config) => {
     config.headers['x-empresa-id'] = empresaId;
   }
 
+  const method = (config.method || 'get').toLowerCase();
+  const csrfToken = getCsrfToken();
+  if (csrfToken && ['post', 'put', 'patch', 'delete'].includes(method)) {
+    config.headers['x-csrf-token'] = decodeURIComponent(csrfToken);
+  }
+
   return config;
 });
 
@@ -40,13 +46,16 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const status = error.response?.status;
-    const refreshToken = getRefreshToken();
-
     if (status === 401 && !originalRequest?._retry && !originalRequest?.url?.includes('/auth/refresh')) {
       originalRequest._retry = true;
 
       try {
-        const response = await authApi.post('/auth/refresh', refreshToken ? { refreshToken } : {});
+        const csrfToken = getCsrfToken();
+        const response = await authApi.post(
+          '/auth/refresh',
+          {},
+          csrfToken ? { headers: { 'x-csrf-token': decodeURIComponent(csrfToken) } } : {},
+        );
         const { user, tokens } = response.data.data;
 
         saveSession({

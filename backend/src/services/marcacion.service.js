@@ -53,14 +53,15 @@ async function findSucursalByQr(empresaId, qrToken) {
 async function findSucursalByDynamicQr(empresaId, qrToken) {
   const result = await pool.query(
     `
-      SELECT s.*
-      FROM sucursal_tokens_dinamicos std
-      INNER JOIN sucursales s ON s.id = std.sucursal_id
+      UPDATE sucursal_tokens_dinamicos std
+      SET usado_en = COALESCE(std.usado_en, NOW())
+      FROM sucursales s
       WHERE s.empresa_id = $1
+        AND s.id = std.sucursal_id
         AND s.estado = 'activa'
         AND std.token = $2
         AND std.expira_en > NOW()
-      LIMIT 1
+      RETURNING s.*
     `,
     [empresaId, qrToken],
   );

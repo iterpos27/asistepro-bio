@@ -3,21 +3,32 @@ export const REFRESH_TOKEN_KEY = 'asistepro_refresh_token';
 export const USER_KEY = 'asistepro_user';
 export const EMPRESA_ID_KEY = 'asistepro_empresa_id';
 
+let accessTokenMemory = null;
+
 export function getAccessToken() {
-  return localStorage.getItem(ACCESS_TOKEN_KEY);
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  return accessTokenMemory;
 }
 
 export function getRefreshToken() {
-  return localStorage.getItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
+  return null;
+}
+
+export function getCsrfToken() {
+  return document.cookie
+    .split(';')
+    .map((cookie) => cookie.trim())
+    .find((cookie) => cookie.startsWith('asistepro_csrf='))
+    ?.split('=')
+    .slice(1)
+    .join('=');
 }
 
 export function saveSession({ accessToken, refreshToken, user }) {
-  localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-  if (refreshToken) {
-    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-  } else {
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-  }
+  accessTokenMemory = accessToken || null;
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 
   if (user?.empresa_id) {
@@ -41,6 +52,7 @@ export function getStoredEmpresaId() {
 }
 
 export function clearStoredSession() {
+  accessTokenMemory = null;
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(USER_KEY);

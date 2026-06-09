@@ -1,5 +1,4 @@
 import { api } from './api';
-import { getRefreshToken } from '../utils/auth';
 
 export async function login(credentials) {
   const response = await api.post('/auth/login', credentials);
@@ -7,8 +6,7 @@ export async function login(credentials) {
 }
 
 export async function logout() {
-  const refreshToken = getRefreshToken();
-  await api.post('/auth/logout', refreshToken ? { refreshToken } : {});
+  await api.post('/auth/logout', {});
 }
 
 export async function getProfile() {
@@ -17,7 +15,6 @@ export async function getProfile() {
 }
 
 export async function refreshToken() {
-  const storedRefreshToken = getRefreshToken();
-  const response = await api.post('/auth/refresh', storedRefreshToken ? { refreshToken: storedRefreshToken } : {});
+  const response = await api.post('/auth/refresh', {});
   return response.data.data;
 }

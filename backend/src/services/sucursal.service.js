@@ -273,10 +273,8 @@ async function generateDynamicQrToken(empresaId, id) {
   await pool.query(
     `
       DELETE FROM sucursal_tokens_dinamicos
-      WHERE sucursal_id = $1
-        AND expira_en <= NOW()
+      WHERE expira_en <= NOW() - INTERVAL '1 day'
     `,
-    [id],
   );
 
   const result = await pool.query(

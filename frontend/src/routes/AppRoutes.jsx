@@ -19,7 +19,7 @@ function PageLoader() {
 }
 
 export default function AppRoutes({ auth }) {
-  const homeRoute = auth.isAuthenticated ? getDefaultRoute(auth.user?.rol) : '/login';
+  const homeRoute = auth.bootstrapping || auth.isAuthenticated ? getDefaultRoute(auth.user?.rol) : '/login';
 
   return (
     <Routes>
@@ -27,7 +27,7 @@ export default function AppRoutes({ auth }) {
       <Route
         path="/login"
         element={
-          auth.isAuthenticated ? (
+          auth.bootstrapping || auth.isAuthenticated ? (
             <Navigate to={getDefaultRoute(auth.user?.rol)} replace />
           ) : (
             <AuthLayout>

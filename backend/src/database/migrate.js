@@ -22,7 +22,13 @@ const migrations = [
   '013_pagos_comprobantes.sql',
   '014_indexes_optimization.sql',
   '015_security_audit_dynamic_qr.sql',
+  '016_dynamic_qr_cleanup_indexes.sql',
 ];
+const EXISTING_SCHEMA_BASELINE_MAX_VERSION = 12;
+
+function getMigrationNumber(migration) {
+  return Number.parseInt(migration.split('_')[0], 10);
+}
 
 async function runMigrations() {
   const client = await pool.connect();
@@ -40,7 +46,7 @@ async function runMigrations() {
     const appliedVersions = new Set(appliedResult.rows.map((row) => row.version));
 
     if (existingSchema.rows[0]?.table_name && appliedVersions.size === 0) {
-      const baseline = migrations.filter((migration) => !['013_pagos_comprobantes.sql', '014_indexes_optimization.sql'].includes(migration));
+      const baseline = migrations.filter((migration) => getMigrationNumber(migration) <= EXISTING_SCHEMA_BASELINE_MAX_VERSION);
 
       for (const migration of baseline) {
         await client.query('INSERT INTO schema_migrations (version) VALUES ($1) ON CONFLICT DO NOTHING', [migration]);
