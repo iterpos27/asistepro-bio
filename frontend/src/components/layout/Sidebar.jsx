@@ -24,7 +24,7 @@ export default function Sidebar({ open, onNavigate, user }) {
             <span className="nav-section-label">{section.label}</span>
             <div className="nav-list">
               {section.items.map((item) => {
-                const active = location.pathname === item.href;
+                const active = location.pathname === item.href || location.pathname.startsWith(`${item.href}/`);
                 const Icon = item.icon;
                 return (
                   <Link
