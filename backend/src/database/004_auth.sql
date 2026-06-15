@@ -17,7 +17,7 @@ CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expira_en ON refresh_tokens(expira
 UPDATE usuarios
 SET password_hash = '$2b$10$WfrS8Wcj8HRjsZQSZU.BouvU1pgPZzK4YKfKWg2Cv.kulf93A0hfO',
     actualizado_en = NOW()
-WHERE email = 'superadmin@asistepro.local'
+WHERE email = 'iter27pos@gmail.com'
   AND password_hash = '$2b$10$reemplazar.hash.en.fase.autenticacion';
 
 COMMIT;

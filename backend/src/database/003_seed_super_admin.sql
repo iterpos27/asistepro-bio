@@ -13,7 +13,7 @@ INSERT INTO usuarios (
   (SELECT id FROM roles WHERE codigo = 'SUPER_ADMIN'),
   'Super',
   'Admin',
-  'superadmin@asistepro.local',
+  'iter27pos@gmail.com',
   '$2b$10$reemplazar.hash.en.fase.autenticacion',
   'activo'
 )

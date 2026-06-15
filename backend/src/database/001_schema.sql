@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
   actualizado_en TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT usuarios_estado_check CHECK (estado IN ('activo', 'inactivo', 'bloqueado')),
   CONSTRAINT usuarios_empresa_requerida_check CHECK (
-    empresa_id IS NOT NULL OR email = 'superadmin@asistepro.local'
+    empresa_id IS NOT NULL OR email = 'iter27pos@gmail.com'
   )
 );
 

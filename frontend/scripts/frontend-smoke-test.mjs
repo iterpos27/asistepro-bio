@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 
 const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
 const apiUrl = process.env.VITE_API_URL || process.env.API_URL || 'http://localhost:4001/api';
-const email = process.env.TEST_EMAIL || 'superadmin@asistepro.local';
+const email = process.env.TEST_EMAIL || 'iter27pos@gmail.com';
 const password = process.env.TEST_PASSWORD || 'Admin123*';
 
 const checks = [];
