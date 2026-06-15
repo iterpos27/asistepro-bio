@@ -118,9 +118,11 @@ export default function PlanesList() {
       />
 
       {showForm ? (
-        <div className="panel">
-          <PanelTitle title={selectedPlan ? 'Editar plan' : 'Nuevo plan'} subtitle="Precio, limites y disponibilidad" />
-          <PlanForm plan={selectedPlan} loading={formLoading} onCancel={closeForm} onSubmit={savePlan} />
+        <div className="modal-backdrop" onClick={closeForm}>
+          <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+            <PanelTitle title={selectedPlan ? 'Editar plan' : 'Nuevo plan'} subtitle="Precio, limites y disponibilidad" />
+            <PlanForm plan={selectedPlan} loading={formLoading} onCancel={closeForm} onSubmit={savePlan} />
+          </div>
         </div>
       ) : null}
 

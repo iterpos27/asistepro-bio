@@ -285,16 +285,18 @@ export default function Facturas({ defaultTab = 'facturas' }) {
       />
 
       {showForm && isSuperAdmin ? (
-        <div className="panel">
-          <PanelTitle title={selectedFactura ? 'Editar factura' : 'Nueva factura'} subtitle="Datos fiscales y estado de cobro" />
-          <FacturaForm
-            factura={selectedFactura}
-            empresas={empresas}
-            suscripciones={suscripciones}
-            loading={formLoading}
-            onCancel={closeForm}
-            onSubmit={saveFactura}
-          />
+        <div className="modal-backdrop" onClick={closeForm}>
+          <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+            <PanelTitle title={selectedFactura ? 'Editar factura' : 'Nueva factura'} subtitle="Datos fiscales y estado de cobro" />
+            <FacturaForm
+              factura={selectedFactura}
+              empresas={empresas}
+              suscripciones={suscripciones}
+              loading={formLoading}
+              onCancel={closeForm}
+              onSubmit={saveFactura}
+            />
+          </div>
         </div>
       ) : null}
 

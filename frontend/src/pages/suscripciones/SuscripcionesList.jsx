@@ -175,16 +175,18 @@ export default function SuscripcionesList() {
       />
 
       {showForm ? (
-        <div className="panel">
-          <PanelTitle title={selectedSuscripcion ? 'Editar suscripcion' : 'Nueva suscripcion'} subtitle="Empresa, plan, estado y vigencia" />
-          <SuscripcionForm
-            suscripcion={selectedSuscripcion}
-            empresas={empresas}
-            planes={planes}
-            loading={formLoading}
-            onCancel={closeForm}
-            onSubmit={saveSuscripcion}
-          />
+        <div className="modal-backdrop" onClick={closeForm}>
+          <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+            <PanelTitle title={selectedSuscripcion ? 'Editar suscripcion' : 'Nueva suscripcion'} subtitle="Empresa, plan, estado y vigencia" />
+            <SuscripcionForm
+              suscripcion={selectedSuscripcion}
+              empresas={empresas}
+              planes={planes}
+              loading={formLoading}
+              onCancel={closeForm}
+              onSubmit={saveSuscripcion}
+            />
+          </div>
         </div>
       ) : null}
 

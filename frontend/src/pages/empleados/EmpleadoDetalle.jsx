@@ -22,20 +22,22 @@ export default function EmpleadoDetalle({ empleado, onClose }) {
   ];
 
   return (
-    <div className="panel">
-      <PanelTitle title="Detalle de empleado" subtitle="Informacion laboral y contacto" />
-      <div className="detail-grid">
-        {details.map(([label, value]) => (
-          <div key={label} className="detail-item">
-            <span>{label}</span>
-            <strong>{value}</strong>
-          </div>
-        ))}
-      </div>
-      <div className="form-actions">
-        <button className="outline-button" type="button" onClick={onClose}>
-          Cerrar
-        </button>
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+        <PanelTitle title="Detalle de empleado" subtitle="Informacion laboral y contacto" />
+        <div className="detail-grid">
+          {details.map(([label, value]) => (
+            <div key={label} className="detail-item">
+              <span>{label}</span>
+              <strong>{value}</strong>
+            </div>
+          ))}
+        </div>
+        <div className="form-actions">
+          <button className="outline-button" type="button" onClick={onClose}>
+            Cerrar
+          </button>
+        </div>
       </div>
     </div>
   );

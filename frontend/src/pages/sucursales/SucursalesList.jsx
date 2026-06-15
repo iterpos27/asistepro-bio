@@ -201,9 +201,11 @@ export default function SucursalesList() {
       />
 
       {showForm ? (
-        <div className="panel">
-          <PanelTitle title={selectedSucursal ? 'Editar sucursal' : 'Nueva sucursal'} subtitle="Direccion, coordenadas, radio y estado" />
-          <SucursalForm sucursal={selectedSucursal} loading={formLoading} onCancel={closeForm} onSubmit={saveSucursal} />
+        <div className="modal-backdrop" onClick={closeForm}>
+          <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+            <PanelTitle title={selectedSucursal ? 'Editar sucursal' : 'Nueva sucursal'} subtitle="Direccion, coordenadas, radio y estado" />
+            <SucursalForm sucursal={selectedSucursal} loading={formLoading} onCancel={closeForm} onSubmit={saveSucursal} />
+          </div>
         </div>
       ) : null}
 

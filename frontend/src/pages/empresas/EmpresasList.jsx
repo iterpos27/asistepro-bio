@@ -149,9 +149,11 @@ export default function EmpresasList() {
       />
 
       {showForm ? (
-        <div className="panel">
-          <PanelTitle title={selectedEmpresa ? 'Editar empresa' : 'Nueva empresa'} subtitle="Datos fiscales y estado operativo" />
-          <EmpresaForm empresa={selectedEmpresa} loading={formLoading} onCancel={closeForm} onSubmit={saveEmpresa} />
+        <div className="modal-backdrop" onClick={closeForm}>
+          <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+            <PanelTitle title={selectedEmpresa ? 'Editar empresa' : 'Nueva empresa'} subtitle="Datos fiscales y estado operativo" />
+            <EmpresaForm empresa={selectedEmpresa} loading={formLoading} onCancel={closeForm} onSubmit={saveEmpresa} />
+          </div>
         </div>
       ) : null}
 

@@ -245,64 +245,66 @@ export default function Pagos({ facturas = [], userRole, selectedFacturaId = '',
       />
 
       {showForm ? (
-        <div className="panel">
-          <PanelTitle title="Registrar comprobante" subtitle="Pago manual asociado a una factura" />
-          <form className="module-form" onSubmit={savePayment}>
-            <div className="form-grid">
-              <label>
-                Factura
-                <select value={payment.factura_id} onChange={(event) => updatePayment('factura_id', event.target.value)} required>
-                  <option value="">Selecciona factura</option>
-                  {facturas
-                    .filter((factura) => factura.estado !== 'anulada')
-                    .map((factura) => (
-                      <option key={factura.id} value={factura.id}>
-                        {factura.numero} - saldo {money(Number(factura.total || 0) - Number(factura.total_pagado || 0))}
-                      </option>
-                    ))}
-                </select>
-              </label>
-              <label>
-                Monto
-                <input value={payment.monto} onChange={(event) => updatePayment('monto', event.target.value)} type="number" min="0.01" step="0.01" required />
-              </label>
-              <label>
-                Metodo
-                <select value={payment.metodo} onChange={(event) => updatePayment('metodo', event.target.value)}>
-                  <option value="manual">Manual</option>
-                  <option value="transferencia">Transferencia</option>
-                  <option value="efectivo">Efectivo</option>
-                  <option value="tarjeta">Tarjeta</option>
-                  <option value="otro">Otro</option>
-                </select>
-              </label>
-              <label>
-                Pagado en
-                <input value={payment.pagado_en} onChange={(event) => updatePayment('pagado_en', event.target.value)} type="datetime-local" />
-              </label>
-              <label>
-                Referencia
-                <input value={payment.referencia} onChange={(event) => updatePayment('referencia', event.target.value)} placeholder="Numero de comprobante" />
-              </label>
-              <label className="wide-field">
-                Nota
-                <input value={payment.nota} onChange={(event) => updatePayment('nota', event.target.value)} placeholder="Detalle opcional" />
-              </label>
-              <label className="wide-field">
-                Archivo comprobante
-                <input type="file" accept="application/pdf,image/png,image/jpeg,image/webp" onChange={(event) => attachReceipt(event.target.files?.[0])} />
-                {payment.comprobante_nombre ? <small className="helper-text">Adjunto: {payment.comprobante_nombre}</small> : null}
-              </label>
-            </div>
-            <div className="form-actions">
-              <button className="outline-button" type="button" onClick={closePaymentForm}>
-                Cancelar
-              </button>
-              <button className="primary-button compact" disabled={formLoading}>
-                {formLoading ? 'Registrando...' : 'Registrar pago'}
-              </button>
-            </div>
-          </form>
+        <div className="modal-backdrop" onClick={closePaymentForm}>
+          <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+            <PanelTitle title="Registrar comprobante" subtitle="Pago manual asociado a una factura" />
+            <form className="module-form" onSubmit={savePayment}>
+              <div className="form-grid">
+                <label>
+                  Factura
+                  <select value={payment.factura_id} onChange={(event) => updatePayment('factura_id', event.target.value)} required>
+                    <option value="">Selecciona factura</option>
+                    {facturas
+                      .filter((factura) => factura.estado !== 'anulada')
+                      .map((factura) => (
+                        <option key={factura.id} value={factura.id}>
+                          {factura.numero} - saldo {money(Number(factura.total || 0) - Number(factura.total_pagado || 0))}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+                <label>
+                  Monto
+                  <input value={payment.monto} onChange={(event) => updatePayment('monto', event.target.value)} type="number" min="0.01" step="0.01" required />
+                </label>
+                <label>
+                  Metodo
+                  <select value={payment.metodo} onChange={(event) => updatePayment('metodo', event.target.value)}>
+                    <option value="manual">Manual</option>
+                    <option value="transferencia">Transferencia</option>
+                    <option value="efectivo">Efectivo</option>
+                    <option value="tarjeta">Tarjeta</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </label>
+                <label>
+                  Pagado en
+                  <input value={payment.pagado_en} onChange={(event) => updatePayment('pagado_en', event.target.value)} type="datetime-local" />
+                </label>
+                <label>
+                  Referencia
+                  <input value={payment.referencia} onChange={(event) => updatePayment('referencia', event.target.value)} placeholder="Numero de comprobante" />
+                </label>
+                <label className="wide-field">
+                  Nota
+                  <input value={payment.nota} onChange={(event) => updatePayment('nota', event.target.value)} placeholder="Detalle opcional" />
+                </label>
+                <label className="wide-field">
+                  Archivo comprobante
+                  <input type="file" accept="application/pdf,image/png,image/jpeg,image/webp" onChange={(event) => attachReceipt(event.target.files?.[0])} />
+                  {payment.comprobante_nombre ? <small className="helper-text">Adjunto: {payment.comprobante_nombre}</small> : null}
+                </label>
+              </div>
+              <div className="form-actions">
+                <button className="outline-button" type="button" onClick={closePaymentForm}>
+                  Cancelar
+                </button>
+                <button className="primary-button compact" disabled={formLoading}>
+                  {formLoading ? 'Registrando...' : 'Registrar pago'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       ) : null}
 

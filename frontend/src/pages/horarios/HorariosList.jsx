@@ -198,9 +198,11 @@ export default function HorariosList() {
       />
 
       {showForm ? (
-        <div className="panel">
-          <PanelTitle title={selectedHorario ? 'Editar horario' : 'Nuevo horario'} subtitle="Hora entrada, salida, tolerancia y dias laborales" />
-          <HorarioForm horario={selectedHorario} sucursales={sucursales} loading={formLoading} onCancel={closeForm} onSubmit={saveHorario} />
+        <div className="modal-backdrop" onClick={closeForm}>
+          <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+            <PanelTitle title={selectedHorario ? 'Editar horario' : 'Nuevo horario'} subtitle="Hora entrada, salida, tolerancia y dias laborales" />
+            <HorarioForm horario={selectedHorario} sucursales={sucursales} loading={formLoading} onCancel={closeForm} onSubmit={saveHorario} />
+          </div>
         </div>
       ) : null}
 
