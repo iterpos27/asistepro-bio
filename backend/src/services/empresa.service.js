@@ -320,14 +320,6 @@ async function resetAdminPassword(id) {
     [id],
   );
 
-  if (!userResult.rows.length) {
-    const error = new Error('No se encontro un usuario administrador para esta empresa');
-    error.statusCode = 404;
-    throw error;
-  }
-
-  const user = userResult.rows[0];
-
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*';
   let password = '';
   for (let i = 0; i < 10; i++) {
@@ -335,6 +327,42 @@ async function resetAdminPassword(id) {
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
+  const user = userResult.rows[0];
+
+  if (!user) {
+    // Si no existe un administrador asignado, lo creamos dinamicamente usando los datos de la empresa
+    const rolResult = await pool.query("SELECT id FROM roles WHERE codigo = 'ADMIN_EMPRESA' LIMIT 1");
+    if (!rolResult.rows.length) {
+      const error = new Error('No se encontro el rol ADMIN_EMPRESA');
+      error.statusCode = 500;
+      throw error;
+    }
+    const rolId = rolResult.rows[0].id;
+    const adminEmail = empresa.email || `admin@${empresa.nombre.toLowerCase().replace(/[^a-z0-9]/g, '')}.local`;
+
+    await pool.query(
+      `
+        INSERT INTO usuarios (
+          empresa_id,
+          rol_id,
+          nombre,
+          apellido,
+          email,
+          password_hash,
+          estado
+        ) VALUES ($1, $2, 'Administrador', $3, $4, $5, 'activo')
+      `,
+      [id, rolId, empresa.nombre, adminEmail.toLowerCase().trim(), passwordHash],
+    );
+
+    return {
+      email: adminEmail,
+      nombre: 'Administrador',
+      apellido: empresa.nombre,
+      tempPassword: password,
+      created: true,
+    };
+  }
 
   await pool.query(
     `
