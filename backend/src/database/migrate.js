@@ -18,6 +18,9 @@ const migrations = [
   '012_pagos_aprobacion.sql',
   '013_pagos_comprobantes.sql',
   '014_configuracion_modulos.sql',
+  '014_indexes_optimization.sql',
+  '015_security_audit_dynamic_qr.sql',
+  '016_dynamic_qr_cleanup_indexes.sql',
 ];
 
 async function runMigrations() {

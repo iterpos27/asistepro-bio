@@ -7,8 +7,12 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
+    "start": "node scripts/start-preview.mjs",
     "check": "npm run build",
     "test": "node scripts/frontend-smoke-test.mjs"
+  },
+  "engines": {
+    "node": ">=20.19"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

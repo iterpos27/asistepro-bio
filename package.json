@@ -4,11 +4,15 @@
   "private": true,
   "description": "ASISTEPRO SaaS multi-tenant attendance platform",
   "scripts": {
+    "build": "npm install --prefix frontend && npm run build --prefix frontend",
     "dev": "node backend/src/server.js",
     "start": "node backend/src/server.js",
     "check": "node --check backend/src/server.js",
     "test": "node --test \"backend/tests/*.test.js\"",
     "migrate": "node backend/src/database/migrate.js"
+  },
+  "engines": {
+    "node": ">=20.19"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

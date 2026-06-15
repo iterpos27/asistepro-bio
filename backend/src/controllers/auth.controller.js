@@ -16,10 +16,12 @@ function parseCookies(cookieHeader = '') {
 }
 
 function getCookieOptions({ httpOnly = false, path = '/api/auth' } = {}) {
+  const isProduction = process.env.NODE_ENV === 'production';
+
   return {
     httpOnly,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: isProduction || process.env.COOKIE_SECURE === 'true',
+    sameSite: process.env.COOKIE_SAME_SITE || (isProduction ? 'none' : 'lax'),
     path,
   };
 }

@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -10,16 +11,24 @@ const { notFoundHandler, errorHandler } = require('./middlewares/error.middlewar
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
 const rateLimitMax = Number(process.env.RATE_LIMIT_MAX || (isProduction ? 100 : 10000));
+const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5174')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 app.use(helmet());
 app.use(
   cors({
     origin: (origin, callback) => {
       if (process.env.NODE_ENV !== 'production') {
-        callback(null, true);
-      } else {
-        callback(null, process.env.CORS_ORIGIN || 'http://localhost:5174');
+        return callback(null, true);
       }
+
+      if (!origin || corsOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('Origen no permitido por CORS'));
     },
     credentials: true,
   }),
@@ -37,6 +46,14 @@ app.use(
 app.use(auditLogger);
 
 app.use('/api', routes);
+
+if (isProduction) {
+  const frontendDistPath = path.resolve(__dirname, '../../frontend/dist');
+  app.use(express.static(frontendDistPath));
+  app.get(/^\/(?!api).*/, (req, res) => {
+    res.sendFile(path.join(frontendDistPath, 'index.html'));
+  });
+}
 
 app.use(notFoundHandler);
 app.use(errorHandler);
