@@ -14,7 +14,13 @@ const rateLimitMax = Number(process.env.RATE_LIMIT_MAX || (isProduction ? 100 : 
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      if (process.env.NODE_ENV !== 'production') {
+        callback(null, true);
+      } else {
+        callback(null, process.env.CORS_ORIGIN || 'http://localhost:5174');
+      }
+    },
     credentials: true,
   }),
 );

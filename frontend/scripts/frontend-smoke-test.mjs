@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 
-const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-const apiUrl = process.env.VITE_API_URL || process.env.API_URL || 'http://localhost:4000/api';
+const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+const apiUrl = process.env.VITE_API_URL || process.env.API_URL || 'http://localhost:4001/api';
 const email = process.env.TEST_EMAIL || 'superadmin@asistepro.local';
 const password = process.env.TEST_PASSWORD || 'Admin123*';
 

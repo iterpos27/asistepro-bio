@@ -133,7 +133,6 @@ export default function HorariosList() {
     loadSucursales().catch((requestError) => {
       setError(requestError.response?.data?.message || 'No se pudieron cargar las sucursales');
     });
-    loadEmpleados();
     loadHorarios();
     loadAsignaciones();
   }, []);
@@ -158,6 +157,10 @@ export default function HorariosList() {
   }
 
   function openAssignForm(horario = null) {
+    if (!empleados.length) {
+      loadEmpleados();
+    }
+
     setAssignment({
       empleado_id: '',
       horario_id: horario?.id || horarios.find((item) => item.activo)?.id || '',

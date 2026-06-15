@@ -5,7 +5,7 @@ loadBackendEnv();
 const app = require('./app');
 const { checkDatabaseConnection } = require('./config/database');
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4001;
 
 async function startServer() {
   await checkDatabaseConnection();

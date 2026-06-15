@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import * as authService from '../services/authService';
-import { clearStoredSession, getStoredUser, saveSession } from '../utils/auth';
+import { clearStoredSession, getCsrfToken, getStoredUser, saveSession } from '../utils/auth';
 
 const AuthContext = createContext(null);
 
@@ -11,6 +11,17 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     let mounted = true;
+    const storedUser = getStoredUser();
+
+    if (!storedUser && !getCsrfToken()) {
+      clearStoredSession();
+      setUser(null);
+      setIsAuthenticated(false);
+      setBootstrapping(false);
+      return () => {
+        mounted = false;
+      };
+    }
 
     authService
       .refreshToken()
