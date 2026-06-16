@@ -2470,11 +2470,21 @@ tbody tr:hover {
 
 .module-form input,
 .module-form select,
+.module-form textarea,
 .settings-grid input,
 .search-box input,
 .toolbar-grid select {
   min-height: 44px;
   border-radius: 8px;
+}
+
+.module-form input,
+.module-form select,
+.module-form textarea,
+.settings-grid input,
+.search-box input,
+.toolbar-grid select {
+  font-weight: 500;
 }
 
 .primary-button {
