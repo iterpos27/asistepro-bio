@@ -23,6 +23,15 @@ function extractQrToken(decodedText) {
   }
 }
 
+function withTimeout(promise, milliseconds = 1500) {
+  return Promise.race([
+    promise,
+    new Promise((resolve) => {
+      window.setTimeout(resolve, milliseconds);
+    }),
+  ]);
+}
+
 export default function MarcarAsistencia() {
   const scannerRef = useRef(null);
   const scanLockedRef = useRef(false);
@@ -46,23 +55,35 @@ export default function MarcarAsistencia() {
     validarPermisoGPS().then(setGpsPermission);
 
     return () => {
-      if (scannerRef.current?.isScanning) {
-        scannerRef.current.stop().catch(() => {});
+      const scanner = scannerRef.current;
+      scannerRef.current = null;
+      if (scanner?.isScanning) {
+        scanner.stop().catch(() => {});
       }
+      scanner?.clear?.().catch(() => {});
+      clearReaderDom();
     };
   }, []);
+
+  function clearReaderDom() {
+    const reader = document.getElementById(qrReaderId);
+    if (reader) {
+      reader.replaceChildren();
+    }
+  }
 
   async function startScanner() {
     setError('');
     setResult(null);
     scanLockedRef.current = false;
     setScannerStatus('Preparando camara...');
-    setScanning(true);
 
     try {
-      if (!scannerRef.current) {
-        scannerRef.current = new Html5Qrcode(qrReaderId);
-      }
+      await stopScanner();
+      clearReaderDom();
+      setScanning(true);
+      setScannerStatus('Preparando camara...');
+      scannerRef.current = new Html5Qrcode(qrReaderId);
 
       await new Promise((resolve) => requestAnimationFrame(resolve));
       const cameras = await Html5Qrcode.getCameras();
@@ -89,21 +110,29 @@ export default function MarcarAsistencia() {
       );
       setScannerStatus(`Camara activa${backCamera.label ? `: ${backCamera.label}` : ''}`);
     } catch (scannerError) {
+      await stopScanner();
       setError(scannerError.message || 'No se pudo iniciar la camara. Revisa permisos o ingresa el token manualmente.');
-      setScannerStatus('');
-      setScanning(false);
     }
   }
 
   async function stopScanner() {
-    if (!scannerRef.current?.isScanning) {
+    const scanner = scannerRef.current;
+
+    setScannerStatus('');
+    scannerRef.current = null;
+
+    if (!scanner) {
       setScanning(false);
+      clearReaderDom();
       return;
     }
 
-    await scannerRef.current.stop().catch(() => {});
-    await scannerRef.current.clear().catch(() => {});
-    setScannerStatus('');
+    if (scanner.isScanning) {
+      await withTimeout(scanner.stop().catch(() => {}));
+    }
+
+    await scanner.clear().catch(() => {});
+    clearReaderDom();
     setScanning(false);
   }
 
