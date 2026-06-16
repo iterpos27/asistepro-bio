@@ -79,7 +79,7 @@ export default function SucursalQR({ qrData, loading, onRotate, onRefreshDynamic
 
   return (
     <div className="panel">
-      <PanelTitle title="QR de sucursal" subtitle={isDynamic ? 'Token dinamico para marcaciones QR + GPS' : 'Payload usado para marcaciones QR + GPS'} />
+      <PanelTitle title="QR de sucursal" subtitle={isDynamic ? 'Token dinamico para marcaciones QR + GPS' : 'Token estatico para marcaciones QR + GPS'} />
       <div className="qr-box">
         <div className="qr-preview">
           {qrImage ? <img src={qrImage} alt="QR de sucursal para marcacion" /> : <span className="status-pill muted">Generando QR</span>}
@@ -88,9 +88,14 @@ export default function SucursalQR({ qrData, loading, onRotate, onRefreshDynamic
         {isDynamic ? (
           <div className="alert-success compact-alert">
             <ShieldCheck size={16} />
-            <span>QR dinamico: expira en {remainingSeconds ?? qrData.ttl_seconds ?? 30}s</span>
+            <span>QR dinamico: expira en {remainingSeconds ?? qrData.ttl_seconds ?? 120}s</span>
           </div>
-        ) : null}
+        ) : (
+          <div className="alert-success compact-alert">
+            <ShieldCheck size={16} />
+            <span>QR estatico activo: no expira hasta rotar el token.</span>
+          </div>
+        )}
         <div className="qr-token">
           <strong>Token</strong>
           <span>{qrData.qr_token}</span>

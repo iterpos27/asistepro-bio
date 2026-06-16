@@ -1,5 +1,6 @@
 const reporteService = require('../services/reporte.service');
 const { toCsv } = require('../utils/csv.util');
+const { toExcelHtml } = require('../utils/excel.util');
 const { parsePagination } = require('../utils/pagination.util');
 
 function getEmpresaId(req) {
@@ -65,6 +66,25 @@ async function novedades(req, res, next) {
   }
 }
 
+async function entradasSalidas(req, res, next) {
+  try {
+    const { limit, offset } = parsePagination(req.query, { maxLimit: 500, defaultLimit: 100 });
+    const result = await reporteService.entradasSalidas({
+      empresaId: getEmpresaId(req),
+      fechaDesde: req.query.fecha_desde,
+      fechaHasta: req.query.fecha_hasta,
+      sucursalId: req.query.sucursal_id,
+      empleadoId: req.query.empleado_id,
+      limit,
+      offset,
+    });
+
+    return res.json({ ok: true, data: result });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 async function atrasos(req, res, next) {
   try {
     const { limit, offset } = parsePagination(req.query, { maxLimit: 500, defaultLimit: 50 });
@@ -101,6 +121,8 @@ async function exportarAsistenciaDiaria(req, res, next) {
       { key: 'sucursal_habitual_nombre', header: 'Sucursal habitual' },
       { key: 'primera_entrada', header: 'Primera entrada' },
       { key: 'ultima_salida', header: 'Ultima salida' },
+      { key: 'horas_trabajadas', header: 'Horas trabajadas' },
+      { key: 'minutos_trabajados', header: 'Minutos trabajados' },
       { key: 'marcaciones_validas', header: 'Marcaciones validas' },
       { key: 'novedades', header: 'Novedades' },
       { key: 'rechazadas', header: 'Rechazadas' },
@@ -110,6 +132,44 @@ async function exportarAsistenciaDiaria(req, res, next) {
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="asistencia-diaria-${fecha}.csv"`);
     return res.send(csv);
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function exportarEntradasSalidasExcel(req, res, next) {
+  try {
+    const result = await reporteService.entradasSalidas({
+      empresaId: getEmpresaId(req),
+      fechaDesde: req.query.fecha_desde,
+      fechaHasta: req.query.fecha_hasta,
+      sucursalId: req.query.sucursal_id,
+      empleadoId: req.query.empleado_id,
+      limit: 1000,
+      offset: 0,
+    });
+    const xls = toExcelHtml(
+      result.items,
+      [
+        { key: 'fecha', header: 'Fecha' },
+        { key: 'empleado_codigo', header: 'Codigo' },
+        { key: 'empleado_nombres', header: 'Nombres' },
+        { key: 'empleado_apellidos', header: 'Apellidos' },
+        { key: 'sucursal_habitual_nombre', header: 'Sucursal habitual' },
+        { key: 'entrada', header: 'Entrada' },
+        { key: 'salida', header: 'Salida' },
+        { key: 'horas_trabajadas', header: 'Horas trabajadas' },
+        { key: 'minutos_trabajados', header: 'Minutos trabajados' },
+        { key: 'total_entradas', header: 'Total entradas' },
+        { key: 'total_salidas', header: 'Total salidas' },
+        { key: 'estado_jornada', header: 'Estado jornada' },
+      ],
+      'Entradas y salidas',
+    );
+
+    res.setHeader('Content-Type', 'application/vnd.ms-excel; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="entradas-salidas.xls"');
+    return res.send(xls);
   } catch (error) {
     return next(error);
   }
@@ -180,9 +240,11 @@ async function exportarAtrasos(req, res, next) {
 module.exports = {
   asistenciaDiaria,
   asistenciaMensual,
+  entradasSalidas,
   novedades,
   atrasos,
   exportarAsistenciaDiaria,
+  exportarEntradasSalidasExcel,
   exportarNovedades,
   exportarAtrasos,
 };

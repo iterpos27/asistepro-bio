@@ -25,6 +25,7 @@ function extractQrToken(decodedText) {
 
 export default function MarcarAsistencia() {
   const scannerRef = useRef(null);
+  const scanLockedRef = useRef(false);
   const [qrToken, setQrToken] = useState('');
   const [tipo, setTipo] = useState('entrada');
   const [motivoNovedad, setMotivoNovedad] = useState('');
@@ -54,6 +55,7 @@ export default function MarcarAsistencia() {
   async function startScanner() {
     setError('');
     setResult(null);
+    scanLockedRef.current = false;
     setScannerStatus('Preparando camara...');
     setScanning(true);
 
@@ -76,8 +78,13 @@ export default function MarcarAsistencia() {
         backCamera.id,
         scannerConfig,
         async (decodedText) => {
-          setQrToken(extractQrToken(decodedText));
+          if (scanLockedRef.current) return;
+          scanLockedRef.current = true;
+          const detectedToken = extractQrToken(decodedText);
+          setQrToken(detectedToken);
+          setScannerStatus('QR detectado. Cerrando camara y obteniendo GPS...');
           await stopScanner();
+          await registerWithFreshGps(detectedToken);
         },
       );
       setScannerStatus(`Camara activa${backCamera.label ? `: ${backCamera.label}` : ''}`);
@@ -101,6 +108,10 @@ export default function MarcarAsistencia() {
   }
 
   async function requestGps() {
+    return refreshGps();
+  }
+
+  async function refreshGps() {
     setLoadingGps(true);
     setError('');
 
@@ -110,12 +121,15 @@ export default function MarcarAsistencia() {
 
       if (!permission.ok) {
         setError(permission.message);
-        return;
+        return null;
       }
 
-      setUbicacion(await obtenerUbicacion());
-    } catch {
-      setError('No se pudo obtener la ubicacion GPS. Acepta el permiso del navegador para continuar.');
+      const nextUbicacion = await obtenerUbicacion();
+      setUbicacion(nextUbicacion);
+      return nextUbicacion;
+    } catch (gpsError) {
+      setError(gpsError.message || 'No se pudo obtener la ubicacion GPS. Acepta el permiso del navegador para continuar.');
+      return null;
     } finally {
       setLoadingGps(false);
     }
@@ -147,27 +161,32 @@ export default function MarcarAsistencia() {
     }
   }
 
+  async function registerWithFreshGps(token) {
+    const cleanToken = token.trim();
+
+    if (!cleanToken) {
+      setError('Ingresa o escanea un QR valido');
+      return;
+    }
+
+    const nextUbicacion = await refreshGps();
+    if (!nextUbicacion) return;
+
+    await registerMarcacion({
+      qr_token: cleanToken,
+      tipo,
+      latitud: nextUbicacion.latitud,
+      longitud: nextUbicacion.longitud,
+      precision_gps: nextUbicacion.precision_metros,
+    });
+  }
+
   async function submit(event) {
     event.preventDefault();
     setError('');
     setResult(null);
 
-    if (!qrToken.trim()) {
-      setError('Ingresa o escanea un QR valido');
-      return;
-    }
-
-    if (!ubicacion) {
-      setError('Primero debes obtener la ubicacion GPS');
-      return;
-    }
-
-    await registerMarcacion({
-      qr_token: qrToken.trim(),
-      tipo,
-      latitud: ubicacion.latitud,
-      longitud: ubicacion.longitud,
-    });
+    await registerWithFreshGps(qrToken);
   }
 
   async function confirmNovedad() {
@@ -213,7 +232,7 @@ export default function MarcarAsistencia() {
       ) : null}
 
       <div className="panel">
-        <PanelTitle title="Datos de marcacion" subtitle="Escanea el QR de la sucursal y confirma tu ubicacion GPS" />
+        <PanelTitle title="Datos de marcacion" subtitle="Escanea el QR o registra manualmente; el GPS se obtiene automaticamente" />
         <form className="module-form" onSubmit={submit}>
           <div className="form-grid">
             <label className="wide-field">
@@ -257,7 +276,7 @@ export default function MarcarAsistencia() {
               <span>
                 {ubicacion
                   ? `${ubicacion.latitud.toFixed(7)}, ${ubicacion.longitud.toFixed(7)} - precision ${Math.round(ubicacion.precision_metros || 0)} m`
-                  : gpsPermission?.message || 'Solicita ubicacion antes de marcar'}
+                  : gpsPermission?.message || 'El GPS se solicitara al marcar'}
               </span>
             </div>
           </div>
@@ -265,11 +284,11 @@ export default function MarcarAsistencia() {
           <div className="form-actions">
             <button className="outline-button" type="button" onClick={requestGps} disabled={loadingGps}>
               <MapPin size={16} />
-              {loadingGps ? 'Obteniendo...' : 'Obtener GPS'}
+              {loadingGps ? 'Obteniendo...' : 'Actualizar GPS'}
             </button>
             <button className="primary-button compact" disabled={submitting || loadingGps}>
               <Send size={16} />
-              {submitting ? 'Registrando...' : 'Registrar'}
+              {submitting || loadingGps ? 'Registrando...' : 'Registrar'}
             </button>
           </div>
         </form>

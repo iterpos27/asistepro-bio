@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const { pool } = require('../config/database');
 
 const SUCURSAL_ESTADOS = ['activa', 'inactiva', 'mantenimiento'];
-const DYNAMIC_QR_TTL_SECONDS = Number(process.env.DYNAMIC_QR_TTL_SECONDS || 30);
+const DYNAMIC_QR_TTL_SECONDS = Number(process.env.DYNAMIC_QR_TTL_SECONDS || 120);
 
 function generateQrToken() {
   return crypto.randomBytes(32).toString('hex');

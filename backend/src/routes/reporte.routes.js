@@ -13,9 +13,11 @@ router.use(subscriptionGuard);
 
 router.get('/asistencia-diaria', reporteController.asistenciaDiaria);
 router.get('/asistencia-mensual', reporteController.asistenciaMensual);
+router.get('/entradas-salidas', reporteController.entradasSalidas);
 router.get('/novedades', reporteController.novedades);
 router.get('/atrasos', reporteController.atrasos);
 router.get('/export/asistencia-diaria.csv', featureGuard('reportes_avanzados'), reporteController.exportarAsistenciaDiaria);
+router.get('/export/entradas-salidas.xls', featureGuard('reportes_avanzados'), reporteController.exportarEntradasSalidasExcel);
 router.get('/export/novedades.csv', featureGuard('reportes_avanzados'), reporteController.exportarNovedades);
 router.get('/export/atrasos.csv', featureGuard('reportes_avanzados'), reporteController.exportarAtrasos);
 

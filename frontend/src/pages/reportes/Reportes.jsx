@@ -30,6 +30,7 @@ function normalizeDailyRows(rows) {
     ...row,
     primera_entrada: formatDateTime(row.primera_entrada),
     ultima_salida: formatDateTime(row.ultima_salida),
+    horas_trabajadas: row.horas_trabajadas ?? '-',
   }));
 }
 
@@ -38,6 +39,16 @@ function normalizeEventRows(rows) {
     ...row,
     marcado_en: formatDateTime(row.marcado_en),
     distancia_metros: row.distancia_metros ? `${Number(row.distancia_metros).toFixed(2)} m` : '-',
+  }));
+}
+
+function normalizeEntradaSalidaRows(rows) {
+  return rows.map((row) => ({
+    ...row,
+    entrada: formatDateTime(row.entrada),
+    salida: formatDateTime(row.salida),
+    horas_trabajadas: row.horas_trabajadas ?? '-',
+    minutos_trabajados: row.minutos_trabajados ?? '-',
   }));
 }
 
@@ -53,6 +64,7 @@ export default function Reportes() {
   const [empleados, setEmpleados] = useState([]);
   const [diaria, setDiaria] = useState(emptyReport);
   const [mensual, setMensual] = useState(emptyReport);
+  const [entradasSalidas, setEntradasSalidas] = useState(emptyReport);
   const [novedades, setNovedades] = useState(emptyReport);
   const [atrasos, setAtrasos] = useState(emptyReport);
   const [loading, setLoading] = useState(false);
@@ -92,7 +104,7 @@ export default function Reportes() {
     setError('');
 
     try {
-      const [dailyResult, monthlyResult, novedadesResult, atrasosResult] = await Promise.all([
+      const [dailyResult, monthlyResult, entradasSalidasResult, novedadesResult, atrasosResult] = await Promise.all([
         reporteService.getAsistenciaDiaria({
           fecha: reportParams.fecha,
           sucursalId: reportParams.sucursalId,
@@ -104,6 +116,12 @@ export default function Reportes() {
           sucursalId: reportParams.sucursalId,
           empleadoId: reportParams.empleadoId,
           estado: reportParams.markStatus,
+        }),
+        reporteService.getEntradasSalidas({
+          fechaDesde: reportParams.fechaDesde,
+          fechaHasta: reportParams.fechaHasta,
+          sucursalId: reportParams.sucursalId,
+          empleadoId: reportParams.empleadoId,
         }),
         reporteService.getNovedades({
           fechaDesde: reportParams.fechaDesde,
@@ -121,6 +139,7 @@ export default function Reportes() {
 
       setDiaria(dailyResult || emptyReport);
       setMensual(monthlyResult || emptyReport);
+      setEntradasSalidas(entradasSalidasResult || emptyReport);
       setNovedades(novedadesResult || emptyReport);
       setAtrasos(atrasosResult || emptyReport);
     } catch (requestError) {
@@ -153,6 +172,19 @@ export default function Reportes() {
             estado: reportParams.dailyStatus,
           },
           `asistencia-diaria-${reportParams.fecha}.csv`,
+        );
+      }
+
+      if (type === 'entradas-salidas') {
+        await reporteService.downloadFile(
+          '/reportes/export/entradas-salidas.xls',
+          {
+            fecha_desde: reportParams.fechaDesde,
+            fecha_hasta: reportParams.fechaHasta,
+            sucursal_id: reportParams.sucursalId,
+            empleado_id: reportParams.empleadoId,
+          },
+          'entradas-salidas.xls',
         );
       }
 
@@ -238,15 +270,19 @@ export default function Reportes() {
         <MetricCard label="Presentes" value={diaria.resumen?.presentes || 0} icon={UserCheck} tone="success" />
         <MetricCard label="Ausentes" value={diaria.resumen?.ausentes || 0} icon={Users} tone="warning" />
         <MetricCard label="Marcaciones mes" value={mensual.resumen?.total_marcaciones || 0} icon={Activity} />
-        <MetricCard label="Atrasos" value={atrasos.total || 0} icon={FileBarChart} tone="accent" />
+        <MetricCard label="Horas trabajadas" value={entradasSalidas.resumen?.horas_trabajadas || 0} icon={FileBarChart} tone="accent" />
       </section>
 
       <div className="panel">
-        <PanelTitle title="Exportacion" subtitle="Archivos CSV generados por el backend y compatibles con Excel" />
+        <PanelTitle title="Exportacion" subtitle="Archivos de asistencia, novedades, atrasos y entradas/salidas" />
         <div className="form-actions">
           <button className="outline-button" type="button" onClick={() => exportCsv('diaria')}>
             <Download size={16} />
             Asistencia diaria
+          </button>
+          <button className="outline-button" type="button" onClick={() => exportCsv('entradas-salidas')}>
+            <Download size={16} />
+            Entradas y salidas Excel
           </button>
           <button className="outline-button" type="button" onClick={() => exportCsv('novedades')}>
             <Download size={16} />
@@ -263,7 +299,12 @@ export default function Reportes() {
       <DataPanel
         title="Asistencia diaria"
         rows={normalizeDailyRows(diaria.items || [])}
-        columns={['empleado_codigo', 'empleado_nombres', 'sucursal_habitual_nombre', 'estado_asistencia', 'primera_entrada', 'ultima_salida', 'novedades']}
+        columns={['empleado_codigo', 'empleado_nombres', 'sucursal_habitual_nombre', 'estado_asistencia', 'primera_entrada', 'ultima_salida', 'horas_trabajadas', 'novedades']}
+      />
+      <DataPanel
+        title="Entradas y salidas"
+        rows={normalizeEntradaSalidaRows(entradasSalidas.items || [])}
+        columns={['fecha', 'empleado_codigo', 'empleado_nombres', 'sucursal_habitual_nombre', 'entrada', 'salida', 'horas_trabajadas', 'estado_jornada']}
       />
       <DataPanel
         title="Asistencia mensual"

@@ -42,6 +42,20 @@ export async function getNovedades({ fechaDesde, fechaHasta, sucursalId, emplead
   return response.data.data;
 }
 
+export async function getEntradasSalidas({ fechaDesde, fechaHasta, sucursalId, empleadoId, limit = 100, offset = 0 } = {}) {
+  const response = await api.get('/reportes/entradas-salidas', {
+    params: compactParams({
+      fecha_desde: fechaDesde,
+      fecha_hasta: fechaHasta,
+      sucursal_id: sucursalId,
+      empleado_id: empleadoId,
+      limit,
+      offset,
+    }),
+  });
+  return response.data.data;
+}
+
 export async function getAtrasos({ fechaDesde, fechaHasta, sucursalId, empleadoId, limit = 100, offset = 0 } = {}) {
   const response = await api.get('/reportes/atrasos', {
     params: compactParams({
@@ -57,6 +71,19 @@ export async function getAtrasos({ fechaDesde, fechaHasta, sucursalId, empleadoI
 }
 
 export async function downloadCsv(path, params, filename) {
+  const response = await api.get(path, {
+    params: compactParams(params),
+    responseType: 'blob',
+  });
+  const url = URL.createObjectURL(response.data);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function downloadFile(path, params, filename) {
   const response = await api.get(path, {
     params: compactParams(params),
     responseType: 'blob',
