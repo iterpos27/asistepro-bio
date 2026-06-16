@@ -4,7 +4,22 @@ const crypto = require('crypto');
 const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'dev_access_secret';
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'dev_refresh_secret';
 const ACCESS_EXPIRES_IN = process.env.JWT_ACCESS_EXPIRES_IN || '15m';
-const REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
+const DEFAULT_SESSION_DAYS = process.env.SESSION_DAYS || '30';
+const REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || `${DEFAULT_SESSION_DAYS}d`;
+
+function durationToMs(value, fallbackDays = 30) {
+  if (!value) return fallbackDays * 24 * 60 * 60 * 1000;
+
+  const match = String(value).trim().match(/^(\d+)([dhm])?$/i);
+  if (!match) return fallbackDays * 24 * 60 * 60 * 1000;
+
+  const amount = Number.parseInt(match[1], 10);
+  const unit = (match[2] || 'd').toLowerCase();
+
+  if (unit === 'm') return amount * 60 * 1000;
+  if (unit === 'h') return amount * 60 * 60 * 1000;
+  return amount * 24 * 60 * 60 * 1000;
+}
 
 function signAccessToken(user) {
   return jwt.sign(
@@ -45,14 +60,12 @@ function verifyRefreshToken(token) {
 }
 
 function getRefreshExpiration() {
-  const days = Number.parseInt(REFRESH_EXPIRES_IN, 10);
-  const expiresAt = new Date();
-
-  expiresAt.setDate(expiresAt.getDate() + (Number.isNaN(days) ? 7 : days));
-  return expiresAt;
+  return new Date(Date.now() + durationToMs(REFRESH_EXPIRES_IN, Number.parseInt(DEFAULT_SESSION_DAYS, 10) || 30));
 }
 
 module.exports = {
+  REFRESH_EXPIRES_IN,
+  durationToMs,
   signAccessToken,
   signRefreshToken,
   verifyAccessToken,

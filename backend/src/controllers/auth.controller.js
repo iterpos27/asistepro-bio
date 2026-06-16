@@ -1,9 +1,13 @@
 const authService = require('../services/auth.service');
 const crypto = require('crypto');
+const { REFRESH_EXPIRES_IN, durationToMs } = require('../config/jwt');
 
 const REFRESH_COOKIE_NAME = 'asistepro_refresh';
 const CSRF_COOKIE_NAME = 'asistepro_csrf';
-const REFRESH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+const REFRESH_COOKIE_MAX_AGE = durationToMs(
+  process.env.REFRESH_COOKIE_DAYS ? `${process.env.REFRESH_COOKIE_DAYS}d` : REFRESH_EXPIRES_IN,
+  Number.parseInt(process.env.SESSION_DAYS, 10) || 30,
+);
 
 function parseCookies(cookieHeader = '') {
   return cookieHeader.split(';').reduce((cookies, cookie) => {
@@ -36,14 +40,18 @@ function getRefreshToken(req) {
 }
 
 function setRefreshCookie(res, refreshToken) {
+  const csrfToken = crypto.randomBytes(32).toString('hex');
+
   res.cookie(REFRESH_COOKIE_NAME, refreshToken, {
     ...getCookieOptions({ httpOnly: true }),
     maxAge: REFRESH_COOKIE_MAX_AGE,
   });
-  res.cookie(CSRF_COOKIE_NAME, crypto.randomBytes(32).toString('hex'), {
+  res.cookie(CSRF_COOKIE_NAME, csrfToken, {
     ...getCookieOptions({ path: '/' }),
     maxAge: REFRESH_COOKIE_MAX_AGE,
   });
+
+  return csrfToken;
 }
 
 function clearRefreshCookie(res) {
@@ -74,12 +82,16 @@ async function login(req, res, next) {
     }
 
     const result = await authService.login({ email, password });
-    setRefreshCookie(res, result.tokens.refreshToken);
+    const csrfToken = setRefreshCookie(res, result.tokens.refreshToken);
 
     return res.json({
       ok: true,
       data: {
         user: result.user,
+        session: {
+          csrfToken,
+          expiresInMs: REFRESH_COOKIE_MAX_AGE,
+        },
         tokens: {
           accessToken: result.tokens.accessToken,
         },
@@ -103,12 +115,16 @@ async function refresh(req, res, next) {
     }
 
     const result = await authService.refresh(refreshContext.token);
-    setRefreshCookie(res, result.tokens.refreshToken);
+    const csrfToken = setRefreshCookie(res, result.tokens.refreshToken);
 
     return res.json({
       ok: true,
       data: {
         user: result.user,
+        session: {
+          csrfToken,
+          expiresInMs: REFRESH_COOKIE_MAX_AGE,
+        },
         tokens: {
           accessToken: result.tokens.accessToken,
         },

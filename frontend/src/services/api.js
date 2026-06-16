@@ -62,6 +62,8 @@ api.interceptors.response.use(
         saveSession({
           accessToken: tokens.accessToken,
           refreshToken: tokens.refreshToken,
+          csrfToken: response.data.data.session?.csrfToken,
+          expiresInMs: response.data.data.session?.expiresInMs,
           user,
         });
 

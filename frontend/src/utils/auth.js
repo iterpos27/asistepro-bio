@@ -2,6 +2,8 @@ export const ACCESS_TOKEN_KEY = 'asistepro_access_token';
 export const REFRESH_TOKEN_KEY = 'asistepro_refresh_token';
 export const USER_KEY = 'asistepro_user';
 export const EMPRESA_ID_KEY = 'asistepro_empresa_id';
+export const CSRF_TOKEN_KEY = 'asistepro_csrf_token';
+export const SESSION_EXPIRES_AT_KEY = 'asistepro_session_expires_at';
 export const EMPRESA_CHANGED_EVENT = 'asistepro:empresa-change';
 
 let accessTokenMemory = null;
@@ -17,20 +19,30 @@ export function getRefreshToken() {
 }
 
 export function getCsrfToken() {
-  return document.cookie
+  const cookieToken = document.cookie
     .split(';')
     .map((cookie) => cookie.trim())
     .find((cookie) => cookie.startsWith('asistepro_csrf='))
     ?.split('=')
     .slice(1)
     .join('=');
+
+  return cookieToken || localStorage.getItem(CSRF_TOKEN_KEY);
 }
 
-export function saveSession({ accessToken, refreshToken, user }) {
+export function saveSession({ accessToken, refreshToken, user, csrfToken, expiresInMs }) {
   accessTokenMemory = accessToken || null;
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
+
+  if (csrfToken) {
+    localStorage.setItem(CSRF_TOKEN_KEY, csrfToken);
+  }
+
+  if (expiresInMs) {
+    localStorage.setItem(SESSION_EXPIRES_AT_KEY, String(Date.now() + Number(expiresInMs)));
+  }
 
   if (user?.empresa_id) {
     localStorage.setItem(EMPRESA_ID_KEY, user.empresa_id);
@@ -70,11 +82,19 @@ export function clearStoredSession() {
   accessTokenMemory = null;
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem(CSRF_TOKEN_KEY);
+  localStorage.removeItem(SESSION_EXPIRES_AT_KEY);
   localStorage.removeItem(USER_KEY);
   localStorage.removeItem(EMPRESA_ID_KEY);
 }
 
 export function getStoredUser() {
+  const expiresAt = Number(localStorage.getItem(SESSION_EXPIRES_AT_KEY) || 0);
+  if (expiresAt && expiresAt <= Date.now()) {
+    clearStoredSession();
+    return null;
+  }
+
   try {
     return JSON.parse(localStorage.getItem(USER_KEY) || 'null');
   } catch {

@@ -29,6 +29,8 @@ export function AuthProvider({ children }) {
         if (!mounted) return;
         saveSession({
           accessToken: result.tokens.accessToken,
+          csrfToken: result.session?.csrfToken,
+          expiresInMs: result.session?.expiresInMs,
           user: result.user,
         });
         setUser(result.user);
@@ -54,6 +56,8 @@ export function AuthProvider({ children }) {
     saveSession({
       accessToken: result.tokens.accessToken,
       refreshToken: result.tokens.refreshToken,
+      csrfToken: result.session?.csrfToken,
+      expiresInMs: result.session?.expiresInMs,
       user: result.user,
     });
     setUser(result.user);
