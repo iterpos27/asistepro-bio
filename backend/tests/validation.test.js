@@ -5,6 +5,7 @@ const { listMarcacionesSchema, marcacionSchema } = require('../src/validators/ma
 const { asistenciaDiariaSchema, entradasSalidasSchema } = require('../src/validators/reporte.validator');
 const { createReemplazoSchema } = require('../src/validators/reemplazo.validator');
 const { createSucursalSchema } = require('../src/validators/sucursal.validator');
+const { listNotificacionesSchema } = require('../src/validators/notificacion.validator');
 
 test('validaciones rechazan coordenadas vacias en sucursales y marcaciones', () => {
   const sucursalResult = createSucursalSchema.safeParse({
@@ -106,4 +107,19 @@ test('validaciones de reemplazo aceptan autorizacion vigente correcta', () => {
   });
 
   assert.equal(result.success, true);
+});
+
+test('validaciones de notificaciones aceptan query vacio y parametros de paginacion', () => {
+  const result = listNotificacionesSchema.safeParse({
+    body: {},
+    query: {
+      limit: '15',
+      offset: '5',
+    },
+    params: {},
+  });
+
+  assert.equal(result.success, true);
+  assert.equal(result.data.query.limit, 15);
+  assert.equal(result.data.query.offset, 5);
 });

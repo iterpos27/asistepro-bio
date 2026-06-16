@@ -8,6 +8,7 @@ export default function DashboardLayout({ user, children }) {
   const navigate = useNavigate();
   const auth = useAuthContext();
   const [open, setOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   async function logout() {
     await auth.logout();
@@ -15,8 +16,14 @@ export default function DashboardLayout({ user, children }) {
   }
 
   return (
-    <div className="app-shell">
-      <Sidebar open={open} onNavigate={() => setOpen(false)} user={user} />
+    <div className={collapsed ? 'app-shell sidebar-collapsed' : 'app-shell'}>
+      <Sidebar
+        open={open}
+        collapsed={collapsed}
+        onToggleCollapse={() => setCollapsed(!collapsed)}
+        onNavigate={() => setOpen(false)}
+        user={user}
+      />
       {open ? <button className="sidebar-backdrop" type="button" aria-label="Cerrar menu" onClick={() => setOpen(false)} /> : null}
       <div className="content-area">
         <Topbar user={user} onOpenMenu={() => setOpen(true)} onLogout={logout} />

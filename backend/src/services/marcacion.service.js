@@ -1,5 +1,6 @@
 const { pool } = require('../config/database');
 const reemplazoService = require('./reemplazo.service');
+const notificacionService = require('./notificacion.service');
 const { calculateDistanceMeters } = require('../utils/geo.util');
 
 const MARCACION_TIPOS = ['entrada', 'salida'];
@@ -297,6 +298,18 @@ async function registrarMarcacion({ empresaId, auth, payload }) {
     mensaje,
     marcado_en: payload.marcado_en,
   });
+
+  if (estado === 'aceptada_con_novedad') {
+    const empleadoNombre = `${empleado.nombres} ${empleado.apellidos || ''}`.trim();
+    notificacionService
+      .createMarcacionNovedadNotification({
+        empresaId,
+        empleadoNombre,
+        sucursalNombre: sucursal.nombre,
+        motivo: motivoNovedad,
+      })
+      .catch((err) => console.error('Error al crear notificacion de novedad:', err));
+  }
 
   return {
     marcacion,

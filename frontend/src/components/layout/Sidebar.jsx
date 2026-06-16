@@ -1,13 +1,26 @@
 import { Link, useLocation } from 'react-router-dom';
-import { ShieldCheck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShieldCheck } from 'lucide-react';
 import { getNavSectionsForRole } from '../../config/navigation';
 
-export default function Sidebar({ open, onNavigate, user }) {
+export default function Sidebar({ open, collapsed, onToggleCollapse, onNavigate, user }) {
   const location = useLocation();
   const sections = getNavSectionsForRole(user?.rol, user?.modulos);
 
+  let asideClasses = 'sidebar';
+  if (open) asideClasses += ' open';
+  if (collapsed) asideClasses += ' collapsed';
+
   return (
-    <aside className={open ? 'sidebar open' : 'sidebar'}>
+    <aside className={asideClasses}>
+      <button
+        className="sidebar-toggle"
+        onClick={onToggleCollapse}
+        type="button"
+        aria-label={collapsed ? 'Expandir menu' : 'Colapsar menu'}
+      >
+        {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+      </button>
+
       <div className="sidebar-brand">
         <div className="brand-icon">
           <ShieldCheck size={22} />

@@ -24,6 +24,7 @@ const migrations = [
   '017_update_superadmin_email.sql',
   '018_user_module_permissions.sql',
   '019_reemplazos_sucursal.sql',
+  '020_notifications.sql',
 ];
 
 async function runMigrations() {
