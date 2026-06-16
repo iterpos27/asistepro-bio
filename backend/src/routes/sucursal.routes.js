@@ -7,6 +7,7 @@ const { validateSchema } = require('../middlewares/validation.middleware');
 const {
   createSucursalSchema,
   idParamSchema,
+  listSucursalesSchema,
   updateSucursalSchema,
 } = require('../validators/sucursal.validator');
 
@@ -17,7 +18,7 @@ router.use(roleGuard(['SUPER_ADMIN', 'ADMIN_EMPRESA', 'RRHH']));
 router.use(tenantGuard);
 router.use(subscriptionGuard);
 
-router.get('/', sucursalController.listSucursales);
+router.get('/', validateSchema(listSucursalesSchema), sucursalController.listSucursales);
 router.post('/', validateSchema(createSucursalSchema), sucursalController.createSucursal);
 router.get('/:id', validateSchema(idParamSchema), sucursalController.getSucursal);
 router.put('/:id', validateSchema(updateSucursalSchema), sucursalController.updateSucursal);

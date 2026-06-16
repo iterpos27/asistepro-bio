@@ -4,13 +4,19 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ExternalLink, LocateFixed, MapPin } from 'lucide-react';
 
+const coordinateField = (label, min, max) =>
+  z.preprocess(
+    (value) => (value === '' || value === null ? undefined : value),
+    z.coerce.number({ message: `${label} requerida` }).refine((value) => value >= min && value <= max, `${label} invalida`),
+  );
+
 const sucursalSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
   codigo: z.string().min(1, 'Codigo requerido'),
   direccion: z.string().optional(),
   ciudad: z.string().optional(),
-  latitud: z.coerce.number().min(-90, 'Latitud invalida').max(90, 'Latitud invalida'),
-  longitud: z.coerce.number().min(-180, 'Longitud invalida').max(180, 'Longitud invalida'),
+  latitud: coordinateField('Latitud', -90, 90),
+  longitud: coordinateField('Longitud', -180, 180),
   radio_metros: z.coerce.number().int().min(1, 'Radio requerido'),
   estado: z.enum(['activa', 'inactiva', 'mantenimiento']),
 });
@@ -44,9 +50,11 @@ export default function SucursalForm({ sucursal, loading, onCancel, onSubmit }) 
   const latitud = watch('latitud');
   const longitud = watch('longitud');
   const mapUrl = useMemo(() => {
+    const hasLatitud = latitud !== '' && latitud !== null && latitud !== undefined;
+    const hasLongitud = longitud !== '' && longitud !== null && longitud !== undefined;
     const lat = Number(latitud);
     const lng = Number(longitud);
-    const query = Number.isFinite(lat) && Number.isFinite(lng) ? `${lat},${lng}` : 'Quito Ecuador';
+    const query = hasLatitud && hasLongitud && Number.isFinite(lat) && Number.isFinite(lng) ? `${lat},${lng}` : 'Quito Ecuador';
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
   }, [latitud, longitud]);
 

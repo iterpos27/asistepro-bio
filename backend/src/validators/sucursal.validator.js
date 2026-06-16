@@ -1,4 +1,5 @@
 const { z } = require('zod');
+const { emptyBody, emptyParams, paginationQuery, requiredNumber } = require('./common.validator');
 
 const uuidParamSchema = z.object({
   params: z.object({
@@ -11,10 +12,24 @@ const sucursalBodySchema = z.object({
   codigo: z.string().trim().min(1, 'codigo es requerido'),
   direccion: z.string().trim().optional().nullable(),
   ciudad: z.string().trim().optional().nullable(),
-  latitud: z.coerce.number().min(-90, 'latitud invalida').max(90, 'latitud invalida'),
-  longitud: z.coerce.number().min(-180, 'longitud invalida').max(180, 'longitud invalida'),
+  latitud: requiredNumber('latitud', {
+    min: { value: -90, message: 'latitud invalida' },
+    max: { value: 90, message: 'latitud invalida' },
+  }),
+  longitud: requiredNumber('longitud', {
+    min: { value: -180, message: 'longitud invalida' },
+    max: { value: 180, message: 'longitud invalida' },
+  }),
   radio_metros: z.coerce.number().int().positive('radio_metros debe ser mayor a cero').optional(),
   estado: z.enum(['activa', 'inactiva', 'mantenimiento']).optional(),
+});
+
+const listSucursalesSchema = z.object({
+  body: emptyBody,
+  query: paginationQuery.extend({
+    estado: z.enum(['activa', 'inactiva', 'mantenimiento']).optional(),
+  }),
+  params: emptyParams,
 });
 
 const createSucursalSchema = z.object({
@@ -41,4 +56,5 @@ module.exports = {
   createSucursalSchema,
   updateSucursalSchema,
   idParamSchema,
+  listSucursalesSchema,
 };
