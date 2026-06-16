@@ -73,8 +73,8 @@ export default function Facturas({ defaultTab = 'facturas' }) {
   async function loadCatalogs() {
     try {
       const [empresasResult, suscripcionesResult] = await Promise.all([
-        isSuperAdmin ? empresaService.listEmpresas({ limit: 200 }) : Promise.resolve({ items: [] }),
-        suscripcionService.listSuscripciones({ limit: 200 }),
+        isSuperAdmin ? empresaService.listEmpresas({ limit: 100 }) : Promise.resolve({ items: [] }),
+        suscripcionService.listSuscripciones({ limit: 100 }),
       ]);
       setEmpresas(empresasResult.items || []);
       setSuscripciones(suscripcionesResult.items || []);

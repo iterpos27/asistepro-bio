@@ -52,8 +52,8 @@ export default function ReemplazosList() {
 
   async function loadCatalogs() {
     const [empleadosResult, sucursalesResult] = await Promise.all([
-      empleadoService.listEmpleados({ estado: 'activo', limit: 300 }),
-      sucursalService.listSucursales({ estado: 'activa', limit: 300 }),
+      empleadoService.listEmpleados({ estado: 'activo', limit: 100 }),
+      sucursalService.listSucursales({ estado: 'activa', limit: 100 }),
     ]);
     setEmpleados(empleadosResult.items || []);
     setSucursales(sucursalesResult.items || []);

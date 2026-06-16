@@ -89,8 +89,8 @@ export default function Reportes() {
   async function loadCatalogs() {
     try {
       const [sucursalesResult, empleadosResult] = await Promise.all([
-        sucursalService.listSucursales({ estado: 'activa', limit: 200 }),
-        empleadoService.listEmpleados({ estado: 'activo', limit: 300 }),
+        sucursalService.listSucursales({ estado: 'activa', limit: 100 }),
+        empleadoService.listEmpleados({ estado: 'activo', limit: 100 }),
       ]);
       setSucursales(sucursalesResult.items || []);
       setEmpleados(empleadosResult.items || []);

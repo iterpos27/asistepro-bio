@@ -12,7 +12,7 @@ export default function EmpresaSelector() {
     let mounted = true;
 
     empresaService
-      .listEmpresas({ limit: 200 })
+      .listEmpresas({ limit: 100 })
       .then((result) => {
         if (!mounted) return;
         const items = result.items || [];
