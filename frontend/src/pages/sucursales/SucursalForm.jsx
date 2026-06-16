@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { ExternalLink, LocateFixed, MapPin } from 'lucide-react';
 
 const sucursalSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
@@ -26,15 +27,28 @@ const defaultValues = {
 };
 
 export default function SucursalForm({ sucursal, loading, onCancel, onSubmit }) {
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [geoMessage, setGeoMessage] = useState('');
+  const [mapInput, setMapInput] = useState('');
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(sucursalSchema),
     defaultValues,
   });
+  const latitud = watch('latitud');
+  const longitud = watch('longitud');
+  const mapUrl = useMemo(() => {
+    const lat = Number(latitud);
+    const lng = Number(longitud);
+    const query = Number.isFinite(lat) && Number.isFinite(lng) ? `${lat},${lng}` : 'Quito Ecuador';
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  }, [latitud, longitud]);
 
   useEffect(() => {
     reset(
@@ -60,6 +74,70 @@ export default function SucursalForm({ sucursal, loading, onCancel, onSubmit }) 
       direccion: values.direccion || null,
       ciudad: values.ciudad || null,
     });
+  }
+
+  function applyCoordinates(lat, lng, message) {
+    setValue('latitud', Number(lat.toFixed(7)), { shouldDirty: true, shouldValidate: true });
+    setValue('longitud', Number(lng.toFixed(7)), { shouldDirty: true, shouldValidate: true });
+    setGeoMessage(message);
+  }
+
+  function useCurrentLocation() {
+    setGeoMessage('');
+
+    if (!navigator.geolocation) {
+      setGeoMessage('Este navegador no permite obtener la ubicacion.');
+      return;
+    }
+
+    setGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        applyCoordinates(
+          position.coords.latitude,
+          position.coords.longitude,
+          `Ubicacion obtenida con precision aproximada de ${Math.round(position.coords.accuracy)} m.`,
+        );
+        setGeoLoading(false);
+      },
+      () => {
+        setGeoMessage('No se pudo obtener la ubicacion. Revisa permisos del navegador o pega un enlace del mapa.');
+        setGeoLoading(false);
+      },
+      { enableHighAccuracy: true, maximumAge: 30000, timeout: 12000 },
+    );
+  }
+
+  function parseMapCoordinates(value) {
+    const decoded = decodeURIComponent(value.trim());
+    const patterns = [
+      /@(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/,
+      /[?&](?:q|query|ll)=(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/,
+      /(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/,
+    ];
+
+    for (const pattern of patterns) {
+      const match = decoded.match(pattern);
+      if (match) {
+        const lat = Number(match[1]);
+        const lng = Number(match[2]);
+        if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+          return { lat, lng };
+        }
+      }
+    }
+
+    return null;
+  }
+
+  function applyMapInput() {
+    const coordinates = parseMapCoordinates(mapInput);
+    if (!coordinates) {
+      setGeoMessage('No encontre coordenadas validas en el texto ingresado.');
+      return;
+    }
+
+    applyCoordinates(coordinates.lat, coordinates.lng, 'Coordenadas aplicadas desde el mapa.');
   }
 
   return (
@@ -98,6 +176,38 @@ export default function SucursalForm({ sucursal, loading, onCancel, onSubmit }) 
           <input {...register('longitud')} type="number" step="0.0000001" placeholder="-78.467834" />
           {errors.longitud && <small>{errors.longitud.message}</small>}
         </label>
+        <div className="location-tool wide-field">
+          <div className="location-tool-header">
+            <span className="location-icon">
+              <MapPin size={18} />
+            </span>
+            <div>
+              <strong>Ubicacion geografica</strong>
+              <span>Usa GPS o pega coordenadas/enlace del mapa.</span>
+            </div>
+          </div>
+          <div className="location-actions">
+            <button className="outline-button" type="button" onClick={useCurrentLocation} disabled={geoLoading}>
+              <LocateFixed size={16} />
+              {geoLoading ? 'Obteniendo...' : 'Usar ubicacion actual'}
+            </button>
+            <a className="outline-button" href={mapUrl} target="_blank" rel="noreferrer">
+              <ExternalLink size={16} />
+              Elegir en mapa
+            </a>
+          </div>
+          <div className="location-map-input">
+            <input
+              value={mapInput}
+              onChange={(event) => setMapInput(event.target.value)}
+              placeholder="Pega enlace de Google Maps, OpenStreetMap o -0.180653,-78.467834"
+            />
+            <button className="outline-button" type="button" onClick={applyMapInput}>
+              Aplicar coordenadas
+            </button>
+          </div>
+          {geoMessage ? <small className="location-status">{geoMessage}</small> : null}
+        </div>
         <label>
           Estado
           <select {...register('estado')}>

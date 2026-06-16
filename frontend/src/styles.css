@@ -1108,6 +1108,70 @@ td {
   grid-column: 1 / -1;
 }
 
+.location-tool {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #d9e2ef;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.location-tool-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.location-tool-header strong,
+.location-tool-header span {
+  display: block;
+}
+
+.location-tool-header strong {
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.location-tool-header span,
+.location-status {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.location-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  color: #1d4ed8;
+  background: var(--blue-soft);
+}
+
+.location-actions,
+.location-map-input {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  gap: 10px;
+  align-items: center;
+}
+
+.location-actions .outline-button,
+.location-map-input .outline-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+}
+
+.location-map-input {
+  grid-template-columns: minmax(0, 1fr) max-content;
+}
+
 .checkbox-field {
   align-content: center;
   grid-template-columns: auto minmax(0, 1fr);
@@ -2376,5 +2440,87 @@ tbody tr:hover {
 
   .page-header h1 {
     font-size: 24px;
+  }
+}
+
+@media (max-width: 860px) {
+  .topbar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 10px;
+    min-height: 64px;
+    padding: 10px 14px;
+  }
+
+  .topbar-title {
+    order: 0;
+    flex-basis: auto;
+  }
+
+  .topbar-title p,
+  .topbar-kicker {
+    display: none;
+  }
+
+  .topbar-actions {
+    order: 0;
+    width: auto;
+    min-width: 0;
+    justify-content: flex-end;
+  }
+
+  .role-badge {
+    display: none;
+  }
+
+  .account-menu {
+    margin-left: 0;
+  }
+
+  .account-trigger {
+    width: 44px;
+    min-width: 44px;
+    max-width: 44px;
+    min-height: 44px;
+    padding: 4px;
+    justify-content: center;
+  }
+
+  .account-trigger-text,
+  .account-trigger > svg {
+    display: none;
+  }
+
+  .account-dropdown {
+    position: fixed;
+    top: 68px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: none;
+  }
+
+  .empresa-selector {
+    grid-column: 1 / -1;
+    order: 2;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .topbar-actions:has(.empresa-selector) {
+    display: contents;
+  }
+}
+
+@media (max-width: 620px) {
+  .location-actions,
+  .location-map-input {
+    grid-template-columns: 1fr;
+  }
+
+  .location-actions .outline-button,
+  .location-map-input .outline-button {
+    width: 100%;
   }
 }
