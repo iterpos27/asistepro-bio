@@ -9,6 +9,7 @@ import EmpresaSelector from '../../components/layout/EmpresaSelector';
 import { ROLES, getRoleLabel } from '../../utils/roles';
 import * as authService from '../../services/authService';
 import * as usuarioService from '../../services/usuarioService';
+import { toast } from '../../services/toastService';
 
 const passwordSchema = z
   .object({
@@ -52,6 +53,7 @@ export default function Settings() {
         type: 'success',
         message: result.message || 'Contrasena actualizada correctamente',
       });
+      toast.success(result.message || 'Contrasena actualizada correctamente');
     } catch (error) {
       setPasswordStatus({
         type: 'error',
@@ -94,6 +96,7 @@ export default function Settings() {
     try {
       setPermissionData(await usuarioService.updatePermisosUsuario(targetUser.id, nextModules));
       setPermissionsStatus({ type: 'success', message: 'Permisos actualizados correctamente' });
+      toast.success('Permisos actualizados correctamente');
     } catch (error) {
       setPermissionsStatus({
         type: 'error',

@@ -1213,6 +1213,100 @@ td {
   font-weight: 600;
 }
 
+.toast-viewport {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 120;
+  display: grid;
+  gap: 10px;
+  width: min(380px, calc(100vw - 28px));
+  pointer-events: none;
+}
+
+.toast-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.18);
+  pointer-events: auto;
+}
+
+.toast-card.success {
+  border-left-color: #16a34a;
+}
+
+.toast-card.error {
+  border-left-color: #dc2626;
+}
+
+.toast-card.warning {
+  border-left-color: #d97706;
+}
+
+.toast-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+}
+
+.toast-card.success .toast-icon {
+  color: #047857;
+  background: #dcfce7;
+}
+
+.toast-card.error .toast-icon {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
+.toast-card.warning .toast-icon {
+  color: #b45309;
+  background: #fef3c7;
+}
+
+.toast-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.toast-copy strong {
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.toast-copy span {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.toast-close {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 8px;
+  color: #64748b;
+  background: transparent;
+}
+
+.toast-close:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
 .form-actions,
 .row-actions {
   display: flex;
@@ -2543,6 +2637,13 @@ tbody tr:hover {
 }
 
 @media (max-width: 620px) {
+  .toast-viewport {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+  }
+
   .location-actions,
   .location-map-input {
     grid-template-columns: 1fr;

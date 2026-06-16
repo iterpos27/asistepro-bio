@@ -4,6 +4,7 @@ import ActionDialog from '../../components/common/ActionDialog';
 import PageHeader from '../../components/common/PageHeader';
 import PanelTitle from '../../components/common/PanelTitle';
 import * as empresaService from '../../services/empresaService';
+import { toast } from '../../services/toastService';
 import * as planService from '../../services/planService';
 import * as suscripcionService from '../../services/suscripcionService';
 import SuscripcionForm from './SuscripcionForm';
@@ -92,9 +93,11 @@ export default function SuscripcionesList() {
       if (selectedSuscripcion) {
         await suscripcionService.updateSuscripcion(selectedSuscripcion.id, values);
         setMessage('Suscripcion actualizada correctamente');
+        toast.success('Suscripcion actualizada correctamente');
       } else {
         await suscripcionService.createSuscripcion(values);
         setMessage('Suscripcion creada correctamente');
+        toast.success('Suscripcion creada correctamente');
       }
 
       closeForm();
@@ -113,6 +116,7 @@ export default function SuscripcionesList() {
     try {
       await suscripcionService.deleteSuscripcion(suscripcion.id);
       setMessage('Suscripcion cancelada correctamente');
+      toast.success('Suscripcion cancelada correctamente');
       setPendingCancel(null);
       await loadSuscripciones();
     } catch (requestError) {

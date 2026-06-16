@@ -4,6 +4,7 @@ import ActionDialog from '../../components/common/ActionDialog';
 import PageHeader from '../../components/common/PageHeader';
 import PanelTitle from '../../components/common/PanelTitle';
 import * as empresaService from '../../services/empresaService';
+import { toast } from '../../services/toastService';
 import EmpresaForm from './EmpresaForm';
 
 function statusClass(estado) {
@@ -36,6 +37,7 @@ export default function EmpresasList() {
       const result = await empresaService.resetAdminPassword(empresa.id);
       setResetResult(result);
       setMessage('Contraseña restablecida con éxito');
+      toast.success('Contraseña restablecida con éxito');
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'No se pudo restablecer la contraseña');
     }
@@ -87,9 +89,11 @@ export default function EmpresasList() {
       if (selectedEmpresa) {
         await empresaService.updateEmpresa(selectedEmpresa.id, values);
         setMessage('Empresa actualizada correctamente');
+        toast.success('Empresa actualizada correctamente');
       } else {
         await empresaService.createEmpresa(values);
         setMessage('Empresa creada correctamente');
+        toast.success('Empresa creada correctamente');
       }
 
       closeForm();
@@ -108,6 +112,7 @@ export default function EmpresasList() {
     try {
       await empresaService.deleteEmpresa(empresa.id);
       setMessage('Empresa cancelada correctamente');
+      toast.success('Empresa cancelada correctamente');
       setPendingCancel(null);
       await loadEmpresas();
     } catch (requestError) {

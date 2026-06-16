@@ -7,6 +7,7 @@ import {
   clearStoredSession,
   saveSession,
 } from '../utils/auth';
+import { toast } from './toastService';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4001/api';
 
@@ -76,6 +77,12 @@ api.interceptors.response.use(
     if (status === 401) {
       clearStoredSession();
       window.location.assign('/login');
+    }
+
+    if (status && status !== 401) {
+      toast.error(error.response?.data?.message || 'No se pudo completar la operacion');
+    } else if (!status) {
+      toast.warning('No hay conexion con el servidor');
     }
 
     return Promise.reject(error);

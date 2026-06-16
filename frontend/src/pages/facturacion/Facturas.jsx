@@ -7,6 +7,7 @@ import PageHeader from '../../components/common/PageHeader';
 import PanelTitle from '../../components/common/PanelTitle';
 import { useAuthContext } from '../../context/AuthContext';
 import * as empresaService from '../../services/empresaService';
+import { toast } from '../../services/toastService';
 import * as facturacionService from '../../services/facturacionService';
 import * as suscripcionService from '../../services/suscripcionService';
 import { ROLES } from '../../utils/roles';
@@ -142,9 +143,11 @@ export default function Facturas({ defaultTab = 'facturas' }) {
       if (selectedFactura) {
         await facturacionService.updateFactura(selectedFactura.id, values);
         setMessage('Factura actualizada correctamente');
+        toast.success('Factura actualizada correctamente');
       } else {
         await facturacionService.createFactura(values);
         setMessage('Factura creada correctamente');
+        toast.success('Factura creada correctamente');
       }
 
       closeForm();
@@ -163,6 +166,7 @@ export default function Facturas({ defaultTab = 'facturas' }) {
     try {
       await facturacionService.anularFactura(factura.id, cancelReason);
       setMessage('Factura anulada correctamente');
+      toast.success('Factura anulada correctamente');
       setCancelTarget(null);
       setCancelReason('');
       await loadFacturas();

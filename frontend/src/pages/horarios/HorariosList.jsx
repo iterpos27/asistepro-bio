@@ -4,6 +4,7 @@ import ActionDialog from '../../components/common/ActionDialog';
 import PageHeader from '../../components/common/PageHeader';
 import PanelTitle from '../../components/common/PanelTitle';
 import * as horarioService from '../../services/horarioService';
+import { toast } from '../../services/toastService';
 import * as sucursalService from '../../services/sucursalService';
 import * as empleadoService from '../../services/empleadoService';
 import HorarioForm from './HorarioForm';
@@ -105,6 +106,7 @@ export default function HorariosList() {
         fecha_fin: assignment.fecha_fin || undefined,
       });
       setMessage('Horario asignado correctamente');
+      toast.success('Horario asignado correctamente');
       setShowAssignForm(false);
       setAssignment({ empleado_id: '', horario_id: '', fecha_inicio: '', fecha_fin: '' });
       await loadAsignaciones();
@@ -122,6 +124,7 @@ export default function HorariosList() {
     try {
       await horarioService.deleteAsignacion(asignacion.id);
       setMessage('Asignacion eliminada correctamente');
+      toast.success('Asignacion eliminada correctamente');
       setPendingDeleteAsignacion(null);
       await loadAsignaciones();
     } catch (requestError) {
@@ -185,9 +188,11 @@ export default function HorariosList() {
       if (selectedHorario) {
         await horarioService.updateHorario(selectedHorario.id, values);
         setMessage('Horario actualizado correctamente');
+        toast.success('Horario actualizado correctamente');
       } else {
         await horarioService.createHorario(values);
         setMessage('Horario creado correctamente');
+        toast.success('Horario creado correctamente');
       }
 
       closeForm();
@@ -207,6 +212,7 @@ export default function HorariosList() {
     try {
       await horarioService.deleteHorario(horario.id);
       setMessage('Horario desactivado correctamente');
+      toast.success('Horario desactivado correctamente');
       setPendingDeactivate(null);
       await loadHorarios();
       await loadAsignaciones();

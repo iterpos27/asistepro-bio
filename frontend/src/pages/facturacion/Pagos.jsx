@@ -3,6 +3,7 @@ import { Ban, Check, FileText, Paperclip, Plus, RotateCcw } from 'lucide-react';
 import ActionDialog from '../../components/common/ActionDialog';
 import PanelTitle from '../../components/common/PanelTitle';
 import * as facturacionService from '../../services/facturacionService';
+import { toast } from '../../services/toastService';
 import { ROLES } from '../../utils/roles';
 
 const defaultPayment = {
@@ -159,6 +160,7 @@ export default function Pagos({ facturas = [], userRole, selectedFacturaId = '',
         comprobante: payment.comprobante || undefined,
       });
       setMessage('Pago registrado correctamente');
+      toast.success('Pago registrado correctamente');
       closePaymentForm();
       await loadPagos(payment.factura_id);
       await onChanged?.();
@@ -176,6 +178,7 @@ export default function Pagos({ facturas = [], userRole, selectedFacturaId = '',
     try {
       await facturacionService.anularPago(pago.id, cancelReason);
       setMessage('Pago anulado correctamente');
+      toast.success('Pago anulado correctamente');
       setCancelTarget(null);
       setCancelReason('');
       await loadPagos();
@@ -192,6 +195,7 @@ export default function Pagos({ facturas = [], userRole, selectedFacturaId = '',
     try {
       await facturacionService.aprobarPago(pago.id);
       setMessage('Pago aprobado correctamente');
+      toast.success('Pago aprobado correctamente');
       await loadPagos();
       await onChanged?.();
     } catch (requestError) {

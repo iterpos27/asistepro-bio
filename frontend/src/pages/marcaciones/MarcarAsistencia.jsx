@@ -4,6 +4,7 @@ import { Camera, MapPin, QrCode, Send, Square } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import PanelTitle from '../../components/common/PanelTitle';
 import * as marcacionService from '../../services/marcacionService';
+import { toast } from '../../services/toastService';
 import { obtenerUbicacion, validarPermisoGPS } from '../../utils/gps';
 
 const motivos = ['Reemplazo', 'Apoyo temporal', 'Emergencia', 'Autorizacion supervisor', 'Otro'];
@@ -170,6 +171,11 @@ export default function MarcarAsistencia() {
     try {
       const response = await marcacionService.registrarMarcacion(payload);
       setResult(response);
+      if (response.marcacion?.estado === 'rechazada') {
+        toast.warning(response.mensaje || response.marcacion?.mensaje || 'Marcacion registrada con advertencia');
+      } else {
+        toast.success(response.mensaje || response.marcacion?.mensaje || 'Marcacion registrada correctamente');
+      }
       setPendingPayload(null);
       setShowNovedadModal(false);
       setMotivoNovedad('');

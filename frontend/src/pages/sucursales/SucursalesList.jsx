@@ -4,6 +4,7 @@ import ActionDialog from '../../components/common/ActionDialog';
 import PageHeader from '../../components/common/PageHeader';
 import PanelTitle from '../../components/common/PanelTitle';
 import * as sucursalService from '../../services/sucursalService';
+import { toast } from '../../services/toastService';
 import SucursalForm from './SucursalForm';
 import SucursalQR from './SucursalQR';
 
@@ -76,9 +77,11 @@ export default function SucursalesList() {
       if (selectedSucursal) {
         await sucursalService.updateSucursal(selectedSucursal.id, values);
         setMessage('Sucursal actualizada correctamente');
+        toast.success('Sucursal actualizada correctamente');
       } else {
         await sucursalService.createSucursal(values);
         setMessage('Sucursal creada correctamente');
+        toast.success('Sucursal creada correctamente');
       }
 
       closeForm();
@@ -97,6 +100,7 @@ export default function SucursalesList() {
     try {
       await sucursalService.deleteSucursal(sucursal.id);
       setMessage('Sucursal desactivada correctamente');
+      toast.success('Sucursal desactivada correctamente');
       setPendingDeactivate(null);
       await loadSucursales();
     } catch (requestError) {
@@ -129,6 +133,7 @@ export default function SucursalesList() {
     try {
       setQrData(await sucursalService.rotateSucursalQr(selectedSucursal.id));
       setMessage('QR rotado correctamente');
+      toast.success('QR rotado correctamente');
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'No se pudo rotar el QR');
     } finally {

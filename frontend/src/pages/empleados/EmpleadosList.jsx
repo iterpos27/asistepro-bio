@@ -4,6 +4,7 @@ import ActionDialog from '../../components/common/ActionDialog';
 import PageHeader from '../../components/common/PageHeader';
 import PanelTitle from '../../components/common/PanelTitle';
 import * as empleadoService from '../../services/empleadoService';
+import { toast } from '../../services/toastService';
 import * as sucursalService from '../../services/sucursalService';
 import EmpleadoDetalle from './EmpleadoDetalle';
 import EmpleadoForm from './EmpleadoForm';
@@ -91,9 +92,11 @@ export default function EmpleadosList() {
       if (selectedEmpleado) {
         await empleadoService.updateEmpleado(selectedEmpleado.id, values);
         setMessage('Empleado actualizado correctamente');
+        toast.success('Empleado actualizado correctamente');
       } else {
         await empleadoService.createEmpleado(values);
         setMessage('Empleado creado correctamente');
+        toast.success('Empleado creado correctamente');
       }
 
       closeForm();
@@ -112,6 +115,7 @@ export default function EmpleadosList() {
     try {
       await empleadoService.deleteEmpleado(empleado.id);
       setMessage('Empleado desactivado correctamente');
+      toast.success('Empleado desactivado correctamente');
       setPendingDeactivate(null);
       await loadEmpleados();
     } catch (requestError) {

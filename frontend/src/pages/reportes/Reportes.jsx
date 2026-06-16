@@ -7,6 +7,7 @@ import DataPanel from '../../components/tables/DataPanel';
 import * as empleadoService from '../../services/empleadoService';
 import * as reporteService from '../../services/reporteService';
 import * as sucursalService from '../../services/sucursalService';
+import { toast } from '../../services/toastService';
 
 const emptyReport = { resumen: {}, items: [], total: 0 };
 const attendanceStates = ['presente', 'ausente'];
@@ -215,8 +216,10 @@ export default function Reportes() {
       }
 
       setExportStatus('Archivo descargado');
+      toast.success('Archivo descargado');
     } catch {
       setExportStatus('No se pudo descargar');
+      toast.error('No se pudo descargar el archivo');
     }
   }
 

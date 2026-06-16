@@ -4,6 +4,7 @@ import ActionDialog from '../../components/common/ActionDialog';
 import PageHeader from '../../components/common/PageHeader';
 import PanelTitle from '../../components/common/PanelTitle';
 import * as planService from '../../services/planService';
+import { toast } from '../../services/toastService';
 import PlanForm from './PlanForm';
 
 export default function PlanesList() {
@@ -60,9 +61,11 @@ export default function PlanesList() {
       if (selectedPlan) {
         await planService.updatePlan(selectedPlan.id, values);
         setMessage('Plan actualizado correctamente');
+        toast.success('Plan actualizado correctamente');
       } else {
         await planService.createPlan(values);
         setMessage('Plan creado correctamente');
+        toast.success('Plan creado correctamente');
       }
 
       closeForm();
@@ -81,6 +84,7 @@ export default function PlanesList() {
     try {
       await planService.deletePlan(plan.id);
       setMessage('Plan desactivado correctamente');
+      toast.success('Plan desactivado correctamente');
       setPendingDeactivate(null);
       await loadPlanes();
     } catch (requestError) {
