@@ -116,11 +116,17 @@ export default function MarcarAsistencia() {
         async (decodedText) => {
           if (scanLockedRef.current) return;
           scanLockedRef.current = true;
-          const detectedToken = extractQrToken(decodedText);
-          setQrToken(detectedToken);
-          setScannerStatus('QR detectado. Cerrando camara y obteniendo GPS...');
-          await stopScanner();
-          await registerWithFreshGps(detectedToken);
+          try {
+            const detectedToken = extractQrToken(decodedText);
+            setQrToken(detectedToken);
+            setScannerStatus('QR detectado. Cerrando camara y obteniendo GPS...');
+            await stopScanner();
+            await registerWithFreshGps(detectedToken);
+          } catch (callbackError) {
+            console.error('Error en callback de escaneo:', callbackError);
+            toast.error(callbackError.message || 'Error al procesar la marcacion del QR');
+            scanLockedRef.current = false;
+          }
         },
       );
       setScannerStatus(`Camara activa${backCamera.label ? `: ${backCamera.label}` : ''}`);
@@ -145,12 +151,18 @@ export default function MarcarAsistencia() {
       return;
     }
 
-    if (scanner.isScanning) {
-      await withTimeout(scanner.stop().catch(() => {}));
+    try {
+      if (scanner.isScanning) {
+        await withTimeout(scanner.stop().catch(() => {}));
+      }
+      if (typeof scanner.clear === 'function') {
+        await withTimeout(scanner.clear().catch(() => {}), 700);
+      }
+    } catch (stopError) {
+      console.error('Error al detener el escaner:', stopError);
+    } finally {
+      clearReaderDom();
     }
-
-    await withTimeout(scanner.clear().catch(() => {}), 700);
-    clearReaderDom();
   }
 
   function clearMarcacionForm() {
@@ -207,6 +219,8 @@ export default function MarcarAsistencia() {
       if (allowNovedadPrompt && message.includes('motivo_novedad')) {
         setPendingPayload(payload);
         setShowNovedadModal(true);
+      } else {
+        toast.error(message);
       }
     } finally {
       setSubmitting(false);
@@ -371,6 +385,17 @@ export default function MarcarAsistencia() {
           </section>
         </div>
       ) : null}
+
+      {(submitting || loadingGps) && (
+        <div className="modal-backdrop" style={{ zIndex: 9999 }}>
+          <div className="loader-card">
+            <span className="loader-dot" />
+            <span>
+              {submitting ? 'Registrando marcacion...' : 'Obteniendo GPS preciso...'}
+            </span>
+          </div>
+        </div>
+      )}
     </>
   );
 }
