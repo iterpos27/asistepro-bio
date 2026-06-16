@@ -26,12 +26,27 @@ function formatDateTime(value) {
   return new Date(value).toLocaleString();
 }
 
+function formatDecimalHours(value) {
+  if (value === null || value === undefined || value === '-' || value === '' || isNaN(Number(value))) return '-';
+  const hours = Number(value);
+  if (hours === 0) return '0h';
+  const wholeHours = Math.floor(hours);
+  const minutes = Math.round((hours - wholeHours) * 60);
+  if (wholeHours === 0) {
+    return `${minutes}m`;
+  }
+  if (minutes === 0) {
+    return `${wholeHours}h`;
+  }
+  return `${wholeHours}h ${minutes}m`;
+}
+
 function normalizeDailyRows(rows) {
   return rows.map((row) => ({
     ...row,
     primera_entrada: formatDateTime(row.primera_entrada),
     ultima_salida: formatDateTime(row.ultima_salida),
-    horas_trabajadas: row.horas_trabajadas ?? '-',
+    horas_trabajadas: formatDecimalHours(row.horas_trabajadas),
   }));
 }
 
@@ -48,7 +63,7 @@ function normalizeEntradaSalidaRows(rows) {
     ...row,
     entrada: formatDateTime(row.entrada),
     salida: formatDateTime(row.salida),
-    horas_trabajadas: row.horas_trabajadas ?? '-',
+    horas_trabajadas: formatDecimalHours(row.horas_trabajadas),
     minutos_trabajados: row.minutos_trabajados ?? '-',
   }));
 }
@@ -273,7 +288,7 @@ export default function Reportes() {
         <MetricCard label="Presentes" value={diaria.resumen?.presentes || 0} icon={UserCheck} tone="success" />
         <MetricCard label="Ausentes" value={diaria.resumen?.ausentes || 0} icon={Users} tone="warning" />
         <MetricCard label="Marcaciones mes" value={mensual.resumen?.total_marcaciones || 0} icon={Activity} />
-        <MetricCard label="Horas trabajadas" value={entradasSalidas.resumen?.horas_trabajadas || 0} icon={FileBarChart} tone="accent" />
+        <MetricCard label="Horas trabajadas" value={formatDecimalHours(entradasSalidas.resumen?.horas_trabajadas)} icon={FileBarChart} tone="accent" />
       </section>
 
       <div className="panel">

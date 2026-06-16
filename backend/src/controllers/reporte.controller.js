@@ -73,6 +73,20 @@ function formatTimeOnly(value) {
   return `${parts.hour}:${parts.minute}:${parts.second}`;
 }
 
+function formatDecimalHours(value) {
+  if (value === null || value === undefined || value === '' || isNaN(Number(value))) return '';
+  const hours = Number(value);
+  const wholeHours = Math.floor(hours);
+  const minutes = Math.round((hours - wholeHours) * 60);
+  if (wholeHours === 0) {
+    return `${minutes}m`;
+  }
+  if (minutes === 0) {
+    return `${wholeHours}h`;
+  }
+  return `${wholeHours}h ${minutes}m`;
+}
+
 async function asistenciaDiaria(req, res, next) {
   try {
     const result = await reporteService.asistenciaDiaria({
@@ -180,7 +194,7 @@ async function exportarAsistenciaDiaria(req, res, next) {
       { key: 'sucursal_habitual_nombre', header: 'Sucursal habitual' },
       { key: 'primera_entrada', header: 'Primera entrada', format: formatDateTime },
       { key: 'ultima_salida', header: 'Ultima salida', format: formatDateTime },
-      { key: 'horas_trabajadas', header: 'Horas trabajadas' },
+      { key: 'horas_trabajadas', header: 'Horas trabajadas', format: formatDecimalHours },
       { key: 'minutos_trabajados', header: 'Minutos trabajados' },
       { key: 'marcaciones_validas', header: 'Marcaciones validas' },
       { key: 'novedades', header: 'Novedades' },
@@ -217,7 +231,7 @@ async function exportarEntradasSalidasExcel(req, res, next) {
         { key: 'sucursal_habitual_nombre', header: 'Sucursal habitual' },
         { key: 'entrada', header: 'Entrada', format: formatTimeOnly },
         { key: 'salida', header: 'Salida', format: formatTimeOnly },
-        { key: 'horas_trabajadas', header: 'Horas trabajadas' },
+        { key: 'horas_trabajadas', header: 'Horas trabajadas', format: formatDecimalHours },
         { key: 'minutos_trabajados', header: 'Minutos trabajados' },
         { key: 'total_entradas', header: 'Total entradas' },
         { key: 'total_salidas', header: 'Total salidas' },
