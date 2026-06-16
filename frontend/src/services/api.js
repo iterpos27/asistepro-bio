@@ -47,7 +47,10 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const status = error.response?.status;
-    if (status === 401 && !originalRequest?._retry && !originalRequest?.url?.includes('/auth/refresh')) {
+    const isLoginRequest = originalRequest?.url?.includes('/auth/login');
+    const isRefreshRequest = originalRequest?.url?.includes('/auth/refresh');
+
+    if (status === 401 && !originalRequest?._retry && !isRefreshRequest && !isLoginRequest) {
       originalRequest._retry = true;
 
       try {
@@ -76,15 +79,17 @@ api.interceptors.response.use(
       }
     }
 
-    if (status === 401) {
+    if (status === 401 && !isLoginRequest) {
       clearStoredSession();
       window.location.assign('/login');
     }
 
-    if (status && status !== 401) {
-      toast.error(error.response?.data?.message || 'No se pudo completar la operacion');
-    } else if (!status) {
-      toast.warning('No hay conexion con el servidor');
+    if (!isRefreshRequest) {
+      if (status && (status !== 401 || isLoginRequest)) {
+        toast.error(error.response?.data?.message || 'No se pudo completar la operacion');
+      } else if (!status) {
+        toast.warning('No hay conexion con el servidor');
+      }
     }
 
     return Promise.reject(error);

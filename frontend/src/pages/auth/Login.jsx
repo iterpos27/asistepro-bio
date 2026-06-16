@@ -93,7 +93,6 @@ export default function Login() {
             </div>
             {errors.password && <small className="field-error">{errors.password.message}</small>}
           </label>
-          {serverError && <div className="alert-error">{serverError}</div>}
           <button className="primary-button" type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Validando...' : 'Entrar'}
           </button>

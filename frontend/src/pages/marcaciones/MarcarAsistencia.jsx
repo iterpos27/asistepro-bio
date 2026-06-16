@@ -43,15 +43,12 @@ export default function MarcarAsistencia() {
   const [detalleNovedad, setDetalleNovedad] = useState('');
   const [pendingPayload, setPendingPayload] = useState(null);
   const [showNovedadModal, setShowNovedadModal] = useState(false);
-  const [novedadError, setNovedadError] = useState('');
   const [ubicacion, setUbicacion] = useState(null);
   const [gpsPermission, setGpsPermission] = useState(null);
   const [scanning, setScanning] = useState(false);
   const [scannerStatus, setScannerStatus] = useState('');
   const [loadingGps, setLoadingGps] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     validarPermisoGPS().then(setGpsPermission);
@@ -92,8 +89,6 @@ export default function MarcarAsistencia() {
   }
 
   async function startScanner() {
-    setError('');
-    setResult(null);
     scanLockedRef.current = false;
     setScannerStatus('Preparando camara...');
 
@@ -129,7 +124,7 @@ export default function MarcarAsistencia() {
       setScannerStatus(`Camara activa${backCamera.label ? `: ${backCamera.label}` : ''}`);
     } catch (scannerError) {
       await stopScanner();
-      setError(scannerError.message || 'No se pudo iniciar la camara. Revisa permisos o ingresa el token manualmente.');
+      toast.error(scannerError.message || 'No se pudo iniciar la camara. Revisa permisos o ingresa el token manualmente.');
     }
   }
 
@@ -164,7 +159,6 @@ export default function MarcarAsistencia() {
     setShowNovedadModal(false);
     setMotivoNovedad('');
     setDetalleNovedad('');
-    setNovedadError('');
   }
 
   async function requestGps() {
@@ -173,14 +167,13 @@ export default function MarcarAsistencia() {
 
   async function refreshGps() {
     setLoadingGps(true);
-    setError('');
 
     try {
       const permission = await validarPermisoGPS();
       setGpsPermission(permission);
 
       if (!permission.ok) {
-        setError(permission.message);
+        toast.error(permission.message);
         return null;
       }
 
@@ -188,7 +181,7 @@ export default function MarcarAsistencia() {
       setUbicacion(nextUbicacion);
       return nextUbicacion;
     } catch (gpsError) {
-      setError(gpsError.message || 'No se pudo obtener la ubicacion GPS. Acepta el permiso del navegador para continuar.');
+      toast.error(gpsError.message || 'No se pudo obtener la ubicacion GPS. Acepta el permiso del navegador para continuar.');
       return null;
     } finally {
       setLoadingGps(false);
@@ -200,7 +193,6 @@ export default function MarcarAsistencia() {
 
     try {
       const response = await marcacionService.registrarMarcacion(payload);
-      setResult(response);
       if (response.marcacion?.estado === 'rechazada') {
         toast.warning(response.mensaje || response.marcacion?.mensaje || 'Marcacion registrada con advertencia');
       } else {
@@ -213,10 +205,6 @@ export default function MarcarAsistencia() {
       if (allowNovedadPrompt && message.includes('motivo_novedad')) {
         setPendingPayload(payload);
         setShowNovedadModal(true);
-        setNovedadError('');
-        setError('');
-      } else {
-        setError(message);
       }
     } finally {
       setSubmitting(false);
@@ -227,7 +215,7 @@ export default function MarcarAsistencia() {
     const cleanToken = token.trim();
 
     if (!cleanToken) {
-      setError('Ingresa o escanea un QR valido');
+      toast.error('Ingresa o escanea un QR valido');
       return;
     }
 
@@ -245,22 +233,17 @@ export default function MarcarAsistencia() {
 
   async function submit(event) {
     event.preventDefault();
-    setError('');
-    setResult(null);
-
     await registerWithFreshGps(qrToken);
   }
 
   async function confirmNovedad() {
-    setNovedadError('');
-
     if (!motivoNovedad) {
-      setNovedadError('Selecciona el motivo de la novedad');
+      toast.error('Selecciona el motivo de la novedad');
       return;
     }
 
     if (!pendingPayload) {
-      setNovedadError('No hay una marcacion pendiente para confirmar');
+      toast.error('No hay una marcacion pendiente para confirmar');
       return;
     }
 
@@ -279,19 +262,11 @@ export default function MarcarAsistencia() {
     setPendingPayload(null);
     setMotivoNovedad('');
     setDetalleNovedad('');
-    setNovedadError('');
   }
 
   return (
     <>
       <PageHeader title="Marcar asistencia" description="Registra entrada o salida con QR y ubicacion GPS." />
-
-      {error ? <div className="alert-error">{error}</div> : null}
-      {result ? (
-        <div className={result.marcacion?.estado === 'rechazada' ? 'alert-error' : 'alert-success'}>
-          {result.mensaje || result.marcacion?.mensaje || `Marcacion ${result.marcacion?.estado || 'registrada'}`}
-        </div>
-      ) : null}
 
       <div className="panel">
         <PanelTitle title="Datos de marcacion" subtitle="Escanea el QR o registra manualmente; el GPS se obtiene automaticamente" />
@@ -363,8 +338,6 @@ export default function MarcarAsistencia() {
               title="Sucursal diferente"
               subtitle="Estas marcando en una sucursal diferente. Selecciona el motivo."
             />
-
-            {novedadError ? <div className="alert-error">{novedadError}</div> : null}
 
             <div className="module-form">
               <label>

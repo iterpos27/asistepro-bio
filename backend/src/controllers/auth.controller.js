@@ -61,6 +61,7 @@ function clearRefreshCookie(res) {
 
 function assertCsrfToken(req, refreshContext) {
   if (refreshContext.source !== 'cookie') return;
+  if (!refreshContext.token) return;
 
   const headerToken = req.headers['x-csrf-token'];
   if (!refreshContext.csrfToken || headerToken !== refreshContext.csrfToken) {

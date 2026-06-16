@@ -319,6 +319,7 @@ async function cancelReemplazo(empresaId, id) {
 }
 
 async function findActiveReemplazoForMarcacion({ empresaId, empleadoId, sucursalId, markedAt = new Date() }) {
+  const REPORT_TIME_ZONE = process.env.REPORT_TIME_ZONE || 'America/Guayaquil';
   const result = await pool.query(
     `
       SELECT *
@@ -327,14 +328,14 @@ async function findActiveReemplazoForMarcacion({ empresaId, empleadoId, sucursal
         AND empleado_id = $2
         AND sucursal_id = $3
         AND estado = 'activo'
-        AND fecha_inicio <= $4::date
-        AND fecha_fin >= $4::date
-        AND (hora_inicio IS NULL OR $4::time >= hora_inicio)
-        AND (hora_fin IS NULL OR $4::time <= hora_fin)
+        AND fecha_inicio <= ($4::timestamptz AT TIME ZONE $5)::date
+        AND fecha_fin >= ($4::timestamptz AT TIME ZONE $5)::date
+        AND (hora_inicio IS NULL OR ($4::timestamptz AT TIME ZONE $5)::time >= hora_inicio)
+        AND (hora_fin IS NULL OR ($4::timestamptz AT TIME ZONE $5)::time <= hora_fin)
       ORDER BY creado_en DESC
       LIMIT 1
     `,
-    [empresaId, empleadoId, sucursalId, markedAt],
+    [empresaId, empleadoId, sucursalId, markedAt, REPORT_TIME_ZONE],
   );
 
   return result.rows[0] || null;
