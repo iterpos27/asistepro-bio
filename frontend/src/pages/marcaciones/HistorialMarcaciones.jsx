@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { RotateCcw } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import PanelTitle from '../../components/common/PanelTitle';
+import { useAuthContext } from '../../context/AuthContext';
+import { ROLES } from '../../utils/roles';
 import * as marcacionService from '../../services/marcacionService';
 
 function statusClass(estado) {
@@ -16,6 +18,8 @@ function formatDateTime(value) {
 }
 
 export default function HistorialMarcaciones() {
+  const { user } = useAuthContext();
+  const canSeeGps = [ROLES.SUPER_ADMIN, ROLES.ADMIN_EMPRESA, ROLES.RRHH].includes(user?.rol);
   const [marcaciones, setMarcaciones] = useState([]);
   const [total, setTotal] = useState(0);
   const [estado, setEstado] = useState('');
@@ -87,6 +91,7 @@ export default function HistorialMarcaciones() {
                 <th>Tipo</th>
                 <th>Estado</th>
                 <th>Distancia</th>
+                {canSeeGps ? <th>GPS</th> : null}
                 <th>Novedad</th>
                 <th>Fecha</th>
               </tr>
@@ -102,13 +107,20 @@ export default function HistorialMarcaciones() {
                       <span className={statusClass(marcacion.estado)}>{marcacion.estado}</span>
                     </td>
                     <td>{marcacion.distancia_metros ? `${Number(marcacion.distancia_metros).toFixed(2)} m` : '-'}</td>
+                    {canSeeGps ? (
+                      <td>
+                        {marcacion.latitud && marcacion.longitud
+                          ? `${Number(marcacion.latitud).toFixed(7)}, ${Number(marcacion.longitud).toFixed(7)}`
+                          : '-'}
+                      </td>
+                    ) : null}
                     <td>{marcacion.motivo_novedad || '-'}</td>
                     <td>{formatDateTime(marcacion.marcado_en)}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7">Sin marcaciones para mostrar.</td>
+                  <td colSpan={canSeeGps ? 8 : 7}>Sin marcaciones para mostrar.</td>
                 </tr>
               )}
             </tbody>

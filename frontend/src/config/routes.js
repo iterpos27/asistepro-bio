@@ -39,26 +39,31 @@ export const privateRoutes = [
     path: '/sucursales',
     element: SucursalesList,
     roles: routeRoles.rrhh,
+    feature: 'sucursales',
   },
   {
     path: '/empleados',
     element: EmpleadosList,
     roles: routeRoles.rrhh,
+    feature: 'empleados',
   },
   {
     path: '/horarios',
     element: HorariosList,
     roles: routeRoles.rrhh,
+    feature: 'horarios',
   },
   {
     path: '/marcaciones',
     element: MarcarAsistencia,
     roles: routeRoles.personal,
+    feature: 'marcaciones',
   },
   {
     path: '/mis-marcaciones',
     element: HistorialMarcaciones,
     roles: routeRoles.personal,
+    feature: 'mis_marcaciones',
   },
   {
     path: '/reportes',
@@ -70,6 +75,7 @@ export const privateRoutes = [
     path: '/facturacion',
     element: Facturas,
     roles: routeRoles.adminEmpresa,
+    feature: 'facturacion',
   },
   {
     path: '/settings',

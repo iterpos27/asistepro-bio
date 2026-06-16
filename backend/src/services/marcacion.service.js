@@ -255,11 +255,16 @@ async function registrarMarcacion({ empresaId, auth, payload }) {
   };
 }
 
-async function listMarcaciones({ empresaId, empleadoId, sucursalId, estado, fechaDesde, fechaHasta, limit = 20, offset = 0 }) {
+async function listMarcaciones({ empresaId, auth, empleadoId, sucursalId, estado, fechaDesde, fechaHasta, limit = 20, offset = 0 }) {
   const filters = ['m.empresa_id = $1'];
   const values = [empresaId];
 
-  if (empleadoId) {
+  if (auth?.rol === 'EMPLEADO') {
+    values.push(auth.usuario_id);
+    filters.push(`e.usuario_id = $${values.length}`);
+  }
+
+  if (empleadoId && auth?.rol !== 'EMPLEADO') {
     values.push(empleadoId);
     filters.push(`m.empleado_id = $${values.length}`);
   }

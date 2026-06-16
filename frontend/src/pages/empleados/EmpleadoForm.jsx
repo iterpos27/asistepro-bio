@@ -187,16 +187,17 @@ export default function EmpleadoForm({ empleado, sucursales, loading, onCancel, 
           <>
             <label className="checkbox-field wide-field">
               <input {...register('crear_usuario')} type="checkbox" />
-              Crear usuario de acceso para este empleado
+              Crear usuario de acceso y asignar rol del sistema
             </label>
             {createAccess ? (
               <>
                 <label>
-                  Rol de acceso
+                  Rol del empleado
                   <select {...register('rol_acceso')}>
                     <option value="EMPLEADO">Empleado</option>
                     <option value="RRHH">RRHH</option>
                   </select>
+                  <small>RRHH podra administrar asistencia segun permisos asignados en Ajustes.</small>
                 </label>
                 <label>
                   Password temporal

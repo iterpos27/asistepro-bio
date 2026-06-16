@@ -14,7 +14,6 @@ export default function SucursalQR({ qrData, loading, onRotate, onRefreshDynamic
     return JSON.stringify(qrData.qr_payload);
   }, [qrData]);
 
-  const payload = qrData ? JSON.stringify(qrData.qr_payload, null, 2) : '';
   const isDynamic = Boolean(qrData?.expira_en);
 
   useEffect(() => {
@@ -96,11 +95,6 @@ export default function SucursalQR({ qrData, loading, onRotate, onRefreshDynamic
             <span>QR estatico activo: no expira hasta rotar el token.</span>
           </div>
         )}
-        <div className="qr-token">
-          <strong>Token</strong>
-          <span>{qrData.qr_token}</span>
-        </div>
-        <pre>{payload}</pre>
         <div className="form-actions">
           {qrImage ? (
             <a className="outline-button" href={qrImage} download={`asistepro-qr-${qrData.qr_token}.png`}>

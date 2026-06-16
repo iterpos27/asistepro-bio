@@ -37,9 +37,9 @@ export const navSections = [
     label: 'Organizacion',
     roles: [ROLES.ADMIN_EMPRESA, ROLES.RRHH],
     items: [
-      { title: 'Sucursales', href: '/sucursales', icon: MapPin },
-      { title: 'Empleados', href: '/empleados', icon: Users },
-      { title: 'Horarios', href: '/horarios', icon: CalendarClock },
+      { title: 'Sucursales', href: '/sucursales', icon: MapPin, feature: 'sucursales' },
+      { title: 'Empleados', href: '/empleados', icon: Users, feature: 'empleados' },
+      { title: 'Horarios', href: '/horarios', icon: CalendarClock, feature: 'horarios' },
     ],
   },
   {
@@ -52,15 +52,15 @@ export const navSections = [
     id: 'billing',
     label: 'Suscripcion',
     roles: [ROLES.ADMIN_EMPRESA],
-    items: [{ title: 'Facturacion', href: '/facturacion', icon: CreditCard }],
+    items: [{ title: 'Facturacion', href: '/facturacion', icon: CreditCard, feature: 'facturacion' }],
   },
   {
     id: 'attendance',
     label: 'Asistencia',
     roles: [ROLES.EMPLEADO],
     items: [
-      { title: 'Marcar', href: '/marcaciones', icon: ScanLine },
-      { title: 'Mis marcaciones', href: '/mis-marcaciones', icon: Activity },
+      { title: 'Marcar', href: '/marcaciones', icon: ScanLine, feature: 'marcaciones' },
+      { title: 'Mis marcaciones', href: '/mis-marcaciones', icon: Activity, feature: 'mis_marcaciones' },
     ],
   },
   {
@@ -68,8 +68,8 @@ export const navSections = [
     label: 'Mi asistencia',
     roles: [ROLES.ADMIN_EMPRESA, ROLES.RRHH],
     items: [
-      { title: 'Marcar', href: '/marcaciones', icon: ScanLine },
-      { title: 'Mis marcaciones', href: '/mis-marcaciones', icon: Activity },
+      { title: 'Marcar', href: '/marcaciones', icon: ScanLine, feature: 'marcaciones' },
+      { title: 'Mis marcaciones', href: '/mis-marcaciones', icon: Activity, feature: 'mis_marcaciones' },
     ],
   },
   {

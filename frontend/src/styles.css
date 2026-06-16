@@ -1184,6 +1184,35 @@ td {
   margin: 0;
 }
 
+.switch-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.switch-field input {
+  width: 18px;
+  min-height: 18px;
+  margin: 0;
+  accent-color: var(--primary);
+}
+
+.compact-switch {
+  white-space: nowrap;
+}
+
+.table-subtext {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .form-actions,
 .row-actions {
   display: flex;

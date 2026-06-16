@@ -22,6 +22,7 @@ const migrations = [
   '015_security_audit_dynamic_qr.sql',
   '016_dynamic_qr_cleanup_indexes.sql',
   '017_update_superadmin_email.sql',
+  '018_user_module_permissions.sql',
 ];
 
 async function runMigrations() {

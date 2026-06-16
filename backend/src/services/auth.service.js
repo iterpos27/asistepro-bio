@@ -8,8 +8,15 @@ const {
   getRefreshExpiration,
 } = require('../config/jwt');
 const { hashToken } = require('../utils/token.util');
+const { buildEffectiveModules } = require('../utils/module-permissions.util');
 
 function sanitizeUser(user) {
+  const modulos = buildEffectiveModules({
+    empresaModules: user.configuracion_modulos,
+    userModules: user.usuario_configuracion_modulos,
+    role: user.rol_codigo,
+  });
+
   return {
     id: user.id,
     empresa_id: user.empresa_id,
@@ -19,7 +26,7 @@ function sanitizeUser(user) {
     estado: user.estado,
     rol: user.rol_codigo,
     empresa: user.empresa_nombre,
-    modulos: user.configuracion_modulos || {},
+    modulos,
   };
 }
 
@@ -35,6 +42,7 @@ async function findUserByEmail(email) {
         u.email,
         u.password_hash,
         u.estado,
+        u.configuracion_modulos AS usuario_configuracion_modulos,
         r.codigo AS rol_codigo,
         e.nombre AS empresa_nombre,
         e.configuracion_modulos
@@ -61,6 +69,7 @@ async function findUserById(id) {
         u.apellido,
         u.email,
         u.estado,
+        u.configuracion_modulos AS usuario_configuracion_modulos,
         r.codigo AS rol_codigo,
         e.nombre AS empresa_nombre,
         e.configuracion_modulos

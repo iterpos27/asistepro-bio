@@ -117,7 +117,7 @@ function featureGuard(featureName) {
       return next();
     }
 
-    const configuracionModulos = req.tenant?.empresa?.configuracion_modulos || {};
+    const configuracionModulos = req.auth?.user?.modulos || req.tenant?.empresa?.configuracion_modulos || {};
     const isEnabled = configuracionModulos[featureName] === true;
 
     if (!isEnabled) {

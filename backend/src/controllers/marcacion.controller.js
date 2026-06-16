@@ -29,6 +29,7 @@ async function listMarcaciones(req, res, next) {
     const { limit, offset } = parsePagination(req.query);
     const result = await marcacionService.listMarcaciones({
       empresaId: getEmpresaId(req),
+      auth: req.auth,
       empleadoId: req.query.empleado_id,
       sucursalId: req.query.sucursal_id,
       estado: req.query.estado,
@@ -37,6 +38,11 @@ async function listMarcaciones(req, res, next) {
       limit,
       offset,
     });
+    const canSeeGps = ['SUPER_ADMIN', 'ADMIN_EMPRESA', 'RRHH'].includes(req.auth.rol);
+
+    if (!canSeeGps) {
+      result.items = result.items.map(({ latitud, longitud, ...item }) => item);
+    }
 
     return res.json({ ok: true, data: result });
   } catch (error) {
