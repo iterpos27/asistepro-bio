@@ -26,6 +26,7 @@ const migrations = [
   '019_reemplazos_sucursal.sql',
   '020_notifications.sql',
   '021_monoempresa_default.sql',
+  '022_zkteco_tables.sql',
 ];
 
 async function runMigrations() {

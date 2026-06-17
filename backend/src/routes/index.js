@@ -15,6 +15,8 @@ const suscripcionRoutes = require('./suscripcion.routes');
 const sucursalRoutes = require('./sucursal.routes');
 const tenantRoutes = require('./tenant.routes');
 const usuarioRoutes = require('./usuario.routes');
+const biometricoRoutes = require('./biometrico.routes');
+const marcacionBiometricaRoutes = require('./marcacionBiometrica.routes');
 
 const router = Router();
 
@@ -33,5 +35,7 @@ router.use('/suscripciones', suscripcionRoutes);
 router.use('/sucursales', sucursalRoutes);
 router.use('/tenant', tenantRoutes);
 router.use('/usuarios', usuarioRoutes);
+router.use('/biometricos', biometricoRoutes);
+router.use('/marcaciones-biometricas', marcacionBiometricaRoutes);
 
 module.exports = router;

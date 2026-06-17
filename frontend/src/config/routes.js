@@ -14,6 +14,7 @@ const ReemplazosList = lazy(() => import('../pages/reemplazos/ReemplazosList'));
 const Settings = lazy(() => import('../pages/settings/Settings'));
 const SuscripcionesList = lazy(() => import('../pages/suscripciones/SuscripcionesList'));
 const SucursalesList = lazy(() => import('../pages/sucursales/SucursalesList'));
+const BiometricosDashboard = lazy(() => import('../pages/biometricos/BiometricosDashboard'));
 
 export const privateRoutes = [
   {
@@ -39,6 +40,12 @@ export const privateRoutes = [
   {
     path: '/sucursales',
     element: SucursalesList,
+    roles: routeRoles.rrhh,
+    feature: 'sucursales',
+  },
+  {
+    path: '/biometricos',
+    element: BiometricosDashboard,
     roles: routeRoles.rrhh,
     feature: 'sucursales',
   },

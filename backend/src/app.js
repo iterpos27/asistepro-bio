@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
 const routes = require('./routes');
+const zktecoIclockRoutes = require('./routes/zktecoIclock.routes');
 const { auditLogger } = require('./middlewares/audit.middleware');
 const { notFoundHandler, errorHandler } = require('./middlewares/error.middleware');
 
@@ -43,6 +44,9 @@ app.use(
   }),
 );
 app.use(auditLogger);
+
+// Rutas públicas de comunicación directa con biométricos ZKTeco ADMS
+app.use('/iclock', zktecoIclockRoutes);
 
 app.use('/api', routes);
 

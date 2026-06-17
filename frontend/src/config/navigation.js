@@ -9,6 +9,7 @@ import {
   ScanLine,
   Settings,
   Users,
+  Cpu,
 } from 'lucide-react';
 import { ROLES } from '../utils/roles';
 
@@ -31,6 +32,7 @@ export const navSections = [
     roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_EMPRESA, ROLES.RRHH],
     items: [
       { title: 'Sucursales', href: '/sucursales', icon: MapPin, feature: 'sucursales' },
+      { title: 'Biométricos', href: '/biometricos', icon: Cpu, feature: 'sucursales' },
       { title: 'Empleados', href: '/empleados', icon: Users, feature: 'empleados' },
       { title: 'Horarios', href: '/horarios', icon: CalendarClock, feature: 'horarios' },
       { title: 'Reemplazos', href: '/reemplazos', icon: Repeat2, feature: 'reemplazos' },
