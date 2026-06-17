@@ -1,6 +1,5 @@
 import {
   Activity,
-  Building2,
   CalendarClock,
   Repeat2,
   CreditCard,
@@ -9,7 +8,6 @@ import {
   MapPin,
   ScanLine,
   Settings,
-  ShieldCheck,
   Users,
 } from 'lucide-react';
 import { ROLES } from '../utils/roles';
@@ -17,26 +15,20 @@ import { ROLES } from '../utils/roles';
 export const navSections = [
   {
     id: 'platform',
-    label: 'Plataforma',
+    label: 'Resumen',
     roles: [ROLES.SUPER_ADMIN],
-    items: [
-      { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { title: 'Empresas', href: '/empresas', icon: Building2 },
-      { title: 'Planes', href: '/planes', icon: CreditCard },
-      { title: 'Suscripciones', href: '/suscripciones', icon: ShieldCheck },
-      { title: 'Facturacion', href: '/facturacion', icon: CreditCard },
-    ],
+    items: [{ title: 'Facturacion', href: '/facturacion', icon: CreditCard }],
   },
   {
     id: 'summary',
     label: 'Resumen',
-    roles: [ROLES.ADMIN_EMPRESA, ROLES.RRHH],
+    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_EMPRESA, ROLES.RRHH],
     items: [{ title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard }],
   },
   {
     id: 'organization',
     label: 'Organizacion',
-    roles: [ROLES.ADMIN_EMPRESA, ROLES.RRHH],
+    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_EMPRESA, ROLES.RRHH],
     items: [
       { title: 'Sucursales', href: '/sucursales', icon: MapPin, feature: 'sucursales' },
       { title: 'Empleados', href: '/empleados', icon: Users, feature: 'empleados' },
@@ -47,7 +39,7 @@ export const navSections = [
   {
     id: 'operations',
     label: 'Operacion',
-    roles: [ROLES.ADMIN_EMPRESA, ROLES.RRHH],
+    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_EMPRESA, ROLES.RRHH],
     items: [{ title: 'Reportes', href: '/reportes', icon: FileBarChart, feature: 'reportes_avanzados' }],
   },
   {
@@ -68,7 +60,7 @@ export const navSections = [
   {
     id: 'self-attendance',
     label: 'Mi asistencia',
-    roles: [ROLES.ADMIN_EMPRESA, ROLES.RRHH],
+    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_EMPRESA, ROLES.RRHH],
     items: [
       { title: 'Marcar', href: '/marcaciones', icon: ScanLine, feature: 'marcaciones' },
       { title: 'Mis marcaciones', href: '/mis-marcaciones', icon: Activity, feature: 'mis_marcaciones' },

@@ -27,7 +27,7 @@ export default function Sidebar({ open, collapsed, onToggleCollapse, onNavigate,
         </div>
         <div>
           <strong>AsistePro</strong>
-          <span>Operacion SaaS</span>
+          <span>Operacion biometrica</span>
         </div>
       </div>
 

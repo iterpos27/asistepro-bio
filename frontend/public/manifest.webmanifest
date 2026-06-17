@@ -1,7 +1,7 @@
 {
-  "name": "AsistePro",
-  "short_name": "AsistePro",
-  "description": "Control de asistencia SaaS con QR, GPS y reportes.",
+  "name": "AsistePro Bio",
+  "short_name": "AsistePro Bio",
+  "description": "Control de asistencia biometrica con QR, GPS y reportes.",
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",

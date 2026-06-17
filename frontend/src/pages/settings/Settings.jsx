@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import PageHeader from '../../components/common/PageHeader';
 import PanelTitle from '../../components/common/PanelTitle';
 import { useAuthContext } from '../../context/AuthContext';
-import EmpresaSelector from '../../components/layout/EmpresaSelector';
 import { ROLES, getRoleLabel } from '../../utils/roles';
 import * as authService from '../../services/authService';
 import * as usuarioService from '../../services/usuarioService';
@@ -128,7 +127,7 @@ export default function Settings() {
           </label>
           <label>
             Empresa
-            <input readOnly value={user?.empresa || (isSuperAdmin ? 'Plataforma (sin tenant fijo)' : '-')} />
+            <input readOnly value={user?.empresa || 'AsistePro Bio'} />
           </label>
         </div>
       </div>
@@ -165,21 +164,6 @@ export default function Settings() {
           </div>
         </form>
       </div>
-
-      {isSuperAdmin ? (
-        <div className="panel">
-          <PanelTitle
-            title="Contexto de empresa"
-            subtitle="Selecciona la empresa con la que operaras en modulos tenant."
-          />
-          <div className="settings-selector">
-            <EmpresaSelector />
-          </div>
-          <p className="helper-text">
-            El super admin necesita una empresa activa para consultar sucursales, empleados y marcaciones de un tenant.
-          </p>
-        </div>
-      ) : null}
 
       {canManagePermissions ? (
         <div className="panel">

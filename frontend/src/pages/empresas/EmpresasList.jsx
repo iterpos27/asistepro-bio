@@ -124,7 +124,7 @@ export default function EmpresasList() {
     <>
       <PageHeader
         title="Empresas"
-        description="Gestion de tenants SaaS. Solo disponible para SUPER_ADMIN."
+        description="Configuracion de la empresa local de AsistePro Bio."
         actions={
           <>
             <span className="status-pill">{loading ? 'Cargando' : `${total} registros`}</span>

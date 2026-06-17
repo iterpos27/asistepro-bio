@@ -1,15 +1,13 @@
 import axios from 'axios';
 import {
-  EMPRESA_ID_KEY,
   getAccessToken,
   getCsrfToken,
-  getStoredEmpresaId,
   clearStoredSession,
   saveSession,
 } from '../utils/auth';
 import { toast } from './toastService';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4001/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -23,14 +21,9 @@ const authApi = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = getAccessToken();
-  const empresaId = getStoredEmpresaId() || localStorage.getItem(EMPRESA_ID_KEY);
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  if (empresaId) {
-    config.headers['x-empresa-id'] = empresaId;
   }
 
   const method = (config.method || 'get').toLowerCase();

@@ -30,10 +30,13 @@ async function findFirstActiveEmpresa() {
         nombre,
         identificacion_fiscal,
         email,
-        estado
+        estado,
+        configuracion_modulos
       FROM empresas
       WHERE estado = 'activa'
-      ORDER BY creado_en DESC
+      ORDER BY
+        CASE WHEN identificacion_fiscal = 'ASISTEPRO-BIO' THEN 0 ELSE 1 END,
+        creado_en ASC
       LIMIT 1
     `,
   );

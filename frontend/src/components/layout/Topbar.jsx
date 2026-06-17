@@ -3,12 +3,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { AlertTriangle, Bell, CalendarClock, Check, Clock, ChevronDown, CircleUserRound, LogOut, Menu, Settings } from 'lucide-react';
 import { navSections } from '../../config/navigation';
 import { ROLES, getRoleLabel } from '../../utils/roles';
-import EmpresaSelector from './EmpresaSelector';
 import * as notificacionService from '../../services/notificacionService';
 
 export default function Topbar({ user, onOpenMenu, onLogout }) {
   const location = useLocation();
-  const isSuperAdmin = user?.rol === ROLES.SUPER_ADMIN;
   const [accountOpen, setAccountOpen] = useState(false);
   const accountRef = useRef(null);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -126,7 +124,7 @@ export default function Topbar({ user, onOpenMenu, onLogout }) {
   }
 
   const getNotificationsLink = () => {
-    if (user?.rol === ROLES.SUPER_ADMIN) return '/empresas';
+    if (user?.rol === ROLES.SUPER_ADMIN) return '/reportes';
     if ([ROLES.ADMIN_EMPRESA, ROLES.RRHH].includes(user?.rol)) return '/reportes';
     return '/mis-marcaciones';
   };
@@ -144,7 +142,6 @@ export default function Topbar({ user, onOpenMenu, onLogout }) {
       </div>
 
       <div className="topbar-actions">
-        {isSuperAdmin ? <EmpresaSelector /> : null}
         <span className="role-badge">{getRoleLabel(user?.rol)}</span>
 
         <div className="topbar-notifications" ref={notificationsRef}>
@@ -244,7 +241,7 @@ export default function Topbar({ user, onOpenMenu, onLogout }) {
               </div>
               <div className="account-meta">
                 <span>Empresa</span>
-                <strong>{user?.empresa || (isSuperAdmin ? 'Seleccion por tenant' : 'Sin empresa')}</strong>
+                <strong>{user?.empresa || 'AsistePro Bio'}</strong>
               </div>
               <div className="account-meta">
                 <span>Perfil</span>

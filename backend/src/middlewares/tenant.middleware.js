@@ -15,9 +15,9 @@ async function tenantGuard(req, res, next) {
 
     const requestedEmpresaId = getRequestedEmpresaId(req);
     const isSuperAdmin = req.auth.rol === 'SUPER_ADMIN';
-    let empresaId = isSuperAdmin ? requestedEmpresaId : req.auth.empresa_id;
+    let empresaId = isSuperAdmin ? requestedEmpresaId || req.auth.empresa_id : req.auth.empresa_id;
 
-    if (!empresaId && isSuperAdmin) {
+    if (!empresaId) {
       const defaultEmpresa = await tenantService.findFirstActiveEmpresa();
       empresaId = defaultEmpresa?.id || null;
     }

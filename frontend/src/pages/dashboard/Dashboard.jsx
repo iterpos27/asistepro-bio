@@ -62,7 +62,7 @@ export default function Dashboard() {
   const isAdminEmpresa = role === ROLES.ADMIN_EMPRESA;
   const isRrhh = role === ROLES.RRHH;
   const isEmpleado = role === ROLES.EMPLEADO;
-  const canSeeTenantOps = isAdminEmpresa || isRrhh;
+  const canSeeTenantOps = isSuperAdmin || isAdminEmpresa || isRrhh;
   const canSeeAttendance = isAdminEmpresa || isRrhh || isEmpleado;
 
   const empresas = useResource('/empresas?limit=100', { items: [], total: 0 }, [role], { enabled: isSuperAdmin });

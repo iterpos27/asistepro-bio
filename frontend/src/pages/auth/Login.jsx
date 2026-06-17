@@ -52,12 +52,12 @@ export default function Login() {
           <strong>AsistePro</strong>
         </div>
         <div>
-          <h1>Asistencia multi-sucursal con QR y GPS.</h1>
-          <p>Gestiona empresas, empleados, horarios y reportes desde una plataforma SaaS segura.</p>
+          <h1>Asistencia biometrica, QR y GPS para una empresa.</h1>
+          <p>Gestiona empleados, sucursales, horarios y reportes desde una instalacion local directa.</p>
         </div>
         <div className="brand-highlights">
           <Feature icon={MapPin} title="Geocercas" text="Validacion por radio y ubicacion real." />
-          <Feature icon={ShieldCheck} title="Multi tenant" text="Datos aislados por empresa." />
+          <Feature icon={ShieldCheck} title="Monoempresa" text="Operacion directa sin seleccion de tenant." />
           <Feature icon={BarChart3} title="Reportes" text="Asistencia diaria, mensual y novedades." />
         </div>
       </section>
