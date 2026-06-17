@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: asistepro-api
+    name: asistepro-bio-api
     env: node
     plan: free
     rootDir: .

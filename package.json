@@ -1,8 +1,8 @@
 {
-  "name": "asistepro",
+  "name": "asistepro-bio",
   "version": "1.0.0",
   "private": true,
-  "description": "ASISTEPRO SaaS multi-tenant attendance platform",
+  "description": "AsistePro Biometrico monoempresa con integracion ZKTeco",
   "scripts": {
     "dev": "node backend/src/server.js",
     "start": "node backend/src/database/migrate.js && node backend/src/server.js",
