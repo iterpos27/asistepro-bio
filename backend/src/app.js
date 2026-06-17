@@ -10,7 +10,7 @@ const { notFoundHandler, errorHandler } = require('./middlewares/error.middlewar
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
 const rateLimitMax = Number(process.env.RATE_LIMIT_MAX || (isProduction ? 100 : 10000));
-const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5174')
+const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
